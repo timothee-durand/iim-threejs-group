@@ -1,21 +1,29 @@
-import {BoxGeometry, Mesh, MeshBasicMaterial, PerspectiveCamera, Scene, WebGLRenderer} from 'three'
-import {dimensions} from './config'
-import {AnimatedElement} from './types'
+import {
+	AmbientLight,
+	PerspectiveCamera,
+	PointLight,
+	Scene,
+	WebGLRenderer
+} from 'three'
+import {dimensions} from './utils/config'
+import {AnimatedElement} from './utils/types'
+import {Sun} from './parts/Sun'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 export class SolarSystem {
 	private scene: Scene
 	private renderer: WebGLRenderer
 	private camera: PerspectiveCamera
 	private animatedChildren: AnimatedElement[] = []
+	private controls: OrbitControls
+	private ambientLight: AmbientLight
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.initScene(canvas)
 		this.addCamera()
-
-		const cube = new TestCube()
-		this.scene.add(cube)
-		this.animatedChildren.push(cube)
-
+		this.addOrbit()
+		this.addSun()
+		this.addLight()
 		this.render()
 	}
 
@@ -34,22 +42,26 @@ export class SolarSystem {
 		camera.position.z = 5
 		this.camera = camera
 	}
+
+	private addSun() {
+		const sun = new Sun()
+		this.scene.add(sun)
+		this.animatedChildren.push(sun)
+	}
+
+	private addLight() {
+		this.ambientLight = new AmbientLight(0xffffff, 0.5)
+		this.scene.add(this.ambientLight)
+	}
+
+	private addOrbit() {
+		this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+	}
     
 	render() {
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate())
+		this.controls.update()
 		window.requestAnimationFrame(() => this.render())
-	}
-}
-
-class TestCube extends Mesh implements AnimatedElement {
-	constructor() {
-		super()
-		this.geometry = new BoxGeometry(1, 1, 1)
-		this.material = new MeshBasicMaterial({color: 0x00ff00})
-	}
-	animate() {
-		this.rotation.x += 0.01
-		this.rotation.y += 0.01
 	}
 }
