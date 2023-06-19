@@ -1,5 +1,5 @@
 import {
-	AmbientLight,
+	AmbientLight, Fog,
 	PerspectiveCamera, Raycaster,
 	Scene, Vector2,
 	WebGLRenderer
@@ -9,12 +9,12 @@ import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
 export class SolarSystem {
-	private scene: Scene
-	private renderer: WebGLRenderer
-	private camera: PerspectiveCamera
+	private scene!: Scene
+	private renderer!: WebGLRenderer
+	private camera!: PerspectiveCamera
 	private animatedChildren: AnimatedElement[] = []
-	private controls: OrbitControls
-	private ambientLight: AmbientLight
+	private controls!: OrbitControls
+	private ambientLight!: AmbientLight
 	private mouse = new Vector2()
 	private raycaster = new Raycaster()
 

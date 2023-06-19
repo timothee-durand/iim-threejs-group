@@ -1,22 +1,33 @@
-import {CylinderGeometry, Group, Mesh, MeshStandardMaterial, PointLight, SphereGeometry} from 'three'
+import {
+	CylinderGeometry,
+	Group,
+	Mesh,
+	MeshStandardMaterial,
+	PointLight,
+	SphereGeometry
+} from 'three'
 import {AnimatedElement, HoverableElement} from '../utils/types'
 
 export class Sun extends Group implements AnimatedElement, HoverableElement {
-	private material = new MeshStandardMaterial({color: 0xffff00})
+	private material !: MeshStandardMaterial
 	private radius = 1
-	private pointLight: PointLight
 	private isHovered = false
 
 	constructor() {
 		super()
+		this.addMaterial()
 		this.addBody()
 		this.addRays()
 		this.addLight()
 	}
 
+	async addMaterial() {
+		this.material = new MeshStandardMaterial({ color: '#ffdd00',  roughness:1})
+	}
+
 	addBody() {
 		const geometry = new SphereGeometry(this.radius, 20, 20)
-		const body = new Mesh(geometry,this.material)
+		const body = new Mesh(geometry, this.material)
 		this.add(body)
 	}
 
@@ -37,24 +48,22 @@ export class Sun extends Group implements AnimatedElement, HoverableElement {
 	generateRay(): Mesh {
 		const radius = this.radius * 0.3
 		const geometry = new CylinderGeometry(radius, radius, 0.1)
-		const ray = new Mesh(geometry,this.material)
+		const ray = new Mesh(geometry, this.material)
 		return ray
 	}
 
 	addLight() {
-		this.pointLight = new PointLight(0xffffff, 0.5)
-		this.pointLight.position.set(0, 2, 4)
-		this.add(this.pointLight)
+		const pointLight = new PointLight(0xffffff, 0.2)
+		pointLight.position.set(0, 2, 4)
+		this.add(pointLight)
+
+		const pointLight2 = new PointLight(0xffffff, 0.2)
+		pointLight2.position.set(0, -2, 4)
+		this.add(pointLight2)
 	}
 
 	animate() {
 		this.rotateZ(0.001)
-		if (this.isHovered) {
-			this.material.color.set(0xff0000)
-			this.isHovered = false
-		} else {
-			this.material.color.set(0xffff00)
-		}
 	}
 
 	hover() {
