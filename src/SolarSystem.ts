@@ -1,12 +1,10 @@
 import {
 	AmbientLight,
-	PerspectiveCamera,
-	PointLight,
-	Scene,
+	PerspectiveCamera, Raycaster,
+	Scene, Vector2,
 	WebGLRenderer
 } from 'three'
-import {dimensions} from './utils/config'
-import {AnimatedElement} from './utils/types'
+import {AnimatedElement, isHoverableElement} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 
@@ -17,6 +15,8 @@ export class SolarSystem {
 	private animatedChildren: AnimatedElement[] = []
 	private controls: OrbitControls
 	private ambientLight: AmbientLight
+	private mouse = new Vector2()
+	private raycaster = new Raycaster()
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.initScene(canvas)
@@ -25,6 +25,8 @@ export class SolarSystem {
 		this.addSun()
 		this.addLight()
 		this.render()
+		this.addListeners()
+
 	}
 
 	private initScene(canvas: HTMLCanvasElement) {
@@ -33,11 +35,11 @@ export class SolarSystem {
 			antialias: true,
 			canvas : canvas
 		})
-		this.renderer.setSize(dimensions.width, dimensions.height)
+		this.renderer.setSize(window.innerWidth, window.innerHeight)
 	}
 
 	private addCamera() {
-		const camera = new PerspectiveCamera(75, dimensions.width / dimensions.height, 0.1, 1000)
+		const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
 		this.scene.add(camera)
 		camera.position.z = 5
 		this.camera = camera
@@ -57,11 +59,47 @@ export class SolarSystem {
 	private addOrbit() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement)
 	}
+
+	private addListeners() {
+		window.addEventListener('resize', () => this.onResize())
+		window.addEventListener('mousemove', (event) => this.onMouseMove(event))
+
+		window.addEventListener('beforeunload', () => {
+			window.removeEventListener('resize', () => this.onResize())
+			window.removeEventListener('mousemove', (event) => this.onMouseMove(event))
+		})
+	}
+
+	private onResize() {
+		this.camera.aspect = window.innerWidth / window.innerHeight
+		this.camera.updateProjectionMatrix()
+		this.renderer.setSize(window.innerWidth, window.innerHeight)
+	}
+
+	private onMouseMove(event: MouseEvent) {
+		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+	}
+
+	private checkInteractions() {
+		this.raycaster.setFromCamera(this.mouse, this.camera)
+		const intersectedObjects = this.raycaster.intersectObjects(this.scene.children, true)
+		intersectedObjects.forEach(intersectedObject => {
+			const object = intersectedObject.object
+			object.traverseAncestors((object) => {
+				if (isHoverableElement(object)) {
+					object.hover()
+					return
+				}
+			})
+		})
+	}
     
 	render() {
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate())
 		this.controls.update()
+		this.checkInteractions()
 		window.requestAnimationFrame(() => this.render())
 	}
 }

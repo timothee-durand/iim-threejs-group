@@ -1,10 +1,12 @@
 import {CylinderGeometry, Group, Mesh, MeshStandardMaterial, PointLight, SphereGeometry} from 'three'
-import {AnimatedElement} from '../utils/types'
+import {AnimatedElement, HoverableElement} from '../utils/types'
 
-export class Sun extends Group implements AnimatedElement {
+export class Sun extends Group implements AnimatedElement, HoverableElement {
 	private material = new MeshStandardMaterial({color: 0xffff00})
 	private radius = 1
 	private pointLight: PointLight
+	private isHovered = false
+
 	constructor() {
 		super()
 		this.addBody()
@@ -47,5 +49,15 @@ export class Sun extends Group implements AnimatedElement {
 
 	animate() {
 		this.rotateZ(0.001)
+		if (this.isHovered) {
+			this.material.color.set(0xff0000)
+			this.isHovered = false
+		} else {
+			this.material.color.set(0xffff00)
+		}
+	}
+
+	hover() {
+		this.isHovered = true
 	}
 }
