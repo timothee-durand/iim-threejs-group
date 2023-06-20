@@ -1,10 +1,10 @@
 import {
-	AmbientLight, Clock, Fog,
+	AmbientLight, Clock,
 	PerspectiveCamera, Raycaster,
 	Scene, Vector2,
 	WebGLRenderer
 } from 'three'
-import {AnimatedElement, isHoverableElement} from './utils/types'
+import {AnimatedElement, isAnimatedElement, isHoverableElement} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { Earth } from './parts/Earth'
@@ -17,18 +17,18 @@ import { Uranus } from './parts/Uranus'
 import { Neptune } from './parts/Neptune'
 
 export class SolarSystem {
+	private static instance: SolarSystem | null= null
 	private scene!: Scene
 	private renderer!: WebGLRenderer
 	private camera!: PerspectiveCamera
 	private animatedChildren: AnimatedElement[] = []
 	private controls!: OrbitControls
-	private ambientLight!: AmbientLight
 	private mouse = new Vector2()
 	private raycaster = new Raycaster()
 	private clock = new Clock()
 
 	constructor(canvas: HTMLCanvasElement) {
-		this.initScene(canvas)
+		this.initRenderer(canvas)
 		this.addCamera()
 		this.addOrbit()
 		this.addSun()
@@ -37,12 +37,12 @@ export class SolarSystem {
 		this.clock.start()
 
 		this.addLight()
+		this.initAnimatedChildren()
 		this.render()
 		this.addListeners()
-
 	}
 
-	private initScene(canvas: HTMLCanvasElement) {
+	private initRenderer(canvas: HTMLCanvasElement) {
 		this.scene = new Scene()
 		this.renderer = new WebGLRenderer({
 			antialias: true,
@@ -51,17 +51,21 @@ export class SolarSystem {
 		this.renderer.setSize(window.innerWidth, window.innerHeight)
 	}
 
+	public getCamera() {
+		return this.camera
+	}
+    
 	private addCamera() {
 		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
 		this.scene.add(camera)
-		camera.position.z = 5
+		camera.position.z = 30
+		camera.position.y = 3
 		this.camera = camera
 	}
 
 	private addSun() {
 		const sun = new Sun()
 		this.scene.add(sun)
-		this.animatedChildren.push(sun)
 	}
 
 	private addPlanets() {
@@ -82,25 +86,23 @@ export class SolarSystem {
 		this.scene.add(saturne)
 		this.scene.add(uranus)
 		this.scene.add(neptune)
-
-		this.animatedChildren.push(venus)
-		this.animatedChildren.push(earth)
-		this.animatedChildren.push(mercury)
-		this.animatedChildren.push(mars)
-		this.animatedChildren.push(jupiter)
-		this.animatedChildren.push(saturne)
-		this.animatedChildren.push(uranus)
-		this.animatedChildren.push(neptune)
-		this.animatedChildren.push(earth)
 	}
 
 	private addLight() {
-		this.ambientLight = new AmbientLight(0xffffff, 0.5)
-		this.scene.add(this.ambientLight)
+		const ambientLight = new AmbientLight(0xffffff, 0.5)
+		this.scene.add(ambientLight)
 	}
 
 	private addOrbit() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+	}
+
+	private initAnimatedChildren() {
+		this.scene.traverse((child) => {
+			if (isAnimatedElement(child)) {
+				this.animatedChildren.push(child)
+			}
+		})
 	}
 
 	private addListeners() {
@@ -138,7 +140,7 @@ export class SolarSystem {
 		})
 	}
     
-	render() {
+	private render() {
 		const elapsedTime = this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
