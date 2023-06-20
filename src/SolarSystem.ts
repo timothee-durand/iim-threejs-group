@@ -1,5 +1,5 @@
 import {
-	AmbientLight, Fog,
+	AmbientLight, Clock, Fog,
 	PerspectiveCamera, Raycaster,
 	Scene, Vector2,
 	WebGLRenderer
@@ -7,6 +7,14 @@ import {
 import {AnimatedElement, isHoverableElement} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
+import { Earth } from './parts/Earth'
+import { Mercury } from './parts/Mercury'
+import { Venus } from './parts/Venus'
+import { Mars } from './parts/Mars'
+import { Jupiter } from './parts/Jupiter'
+import { Saturne } from './parts/Saturne'
+import { Uranus } from './parts/Uranus'
+import { Neptune } from './parts/Neptune'
 
 export class SolarSystem {
 	private scene!: Scene
@@ -17,12 +25,17 @@ export class SolarSystem {
 	private ambientLight!: AmbientLight
 	private mouse = new Vector2()
 	private raycaster = new Raycaster()
+	private clock = new Clock()
 
 	constructor(canvas: HTMLCanvasElement) {
 		this.initScene(canvas)
 		this.addCamera()
 		this.addOrbit()
 		this.addSun()
+		this.addPlanets()
+
+		this.clock.start()
+
 		this.addLight()
 		this.render()
 		this.addListeners()
@@ -39,7 +52,7 @@ export class SolarSystem {
 	}
 
 	private addCamera() {
-		const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
 		this.scene.add(camera)
 		camera.position.z = 5
 		this.camera = camera
@@ -49,6 +62,36 @@ export class SolarSystem {
 		const sun = new Sun()
 		this.scene.add(sun)
 		this.animatedChildren.push(sun)
+	}
+
+	private addPlanets() {
+		const mercury = new Mercury(this.scene)
+		const earth = new Earth(this.scene)
+		const venus = new Venus(this.scene)
+		const mars = new Mars(this.scene)
+		const jupiter = new Jupiter(this.scene)
+		const saturne = new Saturne(this.scene)
+		const uranus = new Uranus(this.scene)
+		const neptune = new Neptune(this.scene)
+
+		this.scene.add(venus)
+		this.scene.add(mercury)
+		this.scene.add(earth)
+		this.scene.add(mars)
+		this.scene.add(jupiter)
+		this.scene.add(saturne)
+		this.scene.add(uranus)
+		this.scene.add(neptune)
+
+		this.animatedChildren.push(venus)
+		this.animatedChildren.push(earth)
+		this.animatedChildren.push(mercury)
+		this.animatedChildren.push(mars)
+		this.animatedChildren.push(jupiter)
+		this.animatedChildren.push(saturne)
+		this.animatedChildren.push(uranus)
+		this.animatedChildren.push(neptune)
+		this.animatedChildren.push(earth)
 	}
 
 	private addLight() {
@@ -96,8 +139,9 @@ export class SolarSystem {
 	}
     
 	render() {
+		const elapsedTime = this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
-		this.animatedChildren.forEach(child => child.animate())
+		this.animatedChildren.forEach(child => child.animate(elapsedTime))
 		this.controls.update()
 		this.checkInteractions()
 		window.requestAnimationFrame(() => this.render())

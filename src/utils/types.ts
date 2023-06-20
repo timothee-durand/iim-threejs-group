@@ -1,5 +1,5 @@
 export interface AnimatedElement {
-    animate: () => void
+    animate: (elapseTime : number) => void
 }
 
 export interface HoverableElement {
