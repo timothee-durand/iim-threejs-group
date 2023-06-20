@@ -1,5 +1,5 @@
 import {
-	AmbientLight, Clock, Fog,
+	AmbientLight, Clock,
 	PerspectiveCamera, Raycaster,
 	Scene, Vector2,
 	WebGLRenderer
@@ -53,12 +53,13 @@ export class SolarSystem {
 
 	public getCamera() {
 		return this.camera
-    }
+	}
     
 	private addCamera() {
 		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
 		this.scene.add(camera)
-		camera.position.z = 5
+		camera.position.z = 30
+		camera.position.y = 3
 		this.camera = camera
 	}
 
@@ -85,28 +86,11 @@ export class SolarSystem {
 		this.scene.add(saturne)
 		this.scene.add(uranus)
 		this.scene.add(neptune)
-
-		this.animatedChildren.push(venus)
-		this.animatedChildren.push(earth)
-		this.animatedChildren.push(mercury)
-		this.animatedChildren.push(mars)
-		this.animatedChildren.push(jupiter)
-		this.animatedChildren.push(saturne)
-		this.animatedChildren.push(uranus)
-		this.animatedChildren.push(neptune)
-		this.animatedChildren.push(earth)
 	}
 
 	private addLight() {
 		const ambientLight = new AmbientLight(0xffffff, 0.5)
 		this.scene.add(ambientLight)
-	}
-
-	private addCamera() {
-		const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-		this.scene.add(camera)
-		camera.position.z = 5
-		this.camera = camera
 	}
 
 	private addOrbit() {
@@ -157,6 +141,7 @@ export class SolarSystem {
 	}
     
 	private render() {
+		const elapsedTime = this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
 		this.controls.update()
