@@ -12,7 +12,8 @@ import {addFont} from '../utils/loaders'
 import edgeOfTheGalaxyFont from '../assets/fonts/edge-of-galaxy-poster.otf'
 import jostRegularFont from '../assets/fonts/jost-regular.ttf'
 import jostBoldFont from '../assets/fonts/jost-bold.ttf'
-import {addText, createHiPPICanvas} from '../utils/canvas'
+import {addText, createHiPPICanvas, getCanvaSizeWithRatio} from '../utils/canvas'
+import {gsap} from 'gsap'
 
 interface PlanetInfos {
     name: string
@@ -24,18 +25,31 @@ interface PlanetInfos {
     description: string
 }
 
+interface AnimatedPanelSizes {
+    width: number
+    height: number
+    padding: number
+}
+
 export class AnimatedPlanetPanel extends Group {
 	private infos: PlanetInfos
 	private material!: MeshBasicMaterial
-	private sizes = {
-		width: 2.3,
-		height: 4
-	}
+	private sizes: AnimatedPanelSizes
 	private readonly distanceFromPlanet: number
-	private padding = 0.2
+	private planetLink!: Mesh
+	private panelBorderTop!: Mesh
+	private panel!: Mesh
+	private canvas!: HTMLCanvasElement
+	private canvaHeight!: number
+	private panelTexture!: Texture
 
-	constructor(infos: PlanetInfos, distanceFromPlanet:number) {
+	constructor(infos: PlanetInfos, distanceFromPlanet: number, sizes: AnimatedPanelSizes = {
+		width: 2.3,
+		height: 4,
+		padding: 0.2
+	}) {
 		super()
+		this.sizes = sizes
 		this.infos = infos
 		this.distanceFromPlanet = distanceFromPlanet
 		this.init()
@@ -47,47 +61,63 @@ export class AnimatedPlanetPanel extends Group {
 		this.addBorder()
 
 		this.translateX(this.distanceFromPlanet)
+		this.lauchAnimation()
 	}
 
 	private addPanel() {
+		const panelGeometry = new PlaneGeometry(this.sizes.width, this.sizes.height)
+		panelGeometry.translate(0, -this.sizes.height / 2, 0)
 		const panel = new Mesh(
-			new PlaneGeometry(this.sizes.width, this.sizes.height),
+			panelGeometry,
 			this.material
 		)
+		panel.scale.y = 0
+		panel.translateY(this.sizes.height / 2)
 		this.add(panel)
+		this.panel = panel
 	}
 
-	private addBorder(){
+	private addBorder() {
 		const borderRadius = 0.02
-		const borderMaterial = new MeshBasicMaterial({ color: '#a0fff1', side: DoubleSide })
-		const borderTopX =this.sizes.height / 2 +0.2
-		const borderTopWidth = this.sizes.width + this.padding * 2
+		const borderMaterial = new MeshBasicMaterial({color: '#a0fff1', side: DoubleSide})
+		const borderTopX = this.sizes.height / 2 + 0.2
+		const borderTopWidth = this.sizes.width + this.sizes.padding * 2
+		const capsuleGeometry = new CapsuleGeometry(borderRadius, borderTopWidth, 15)
+		capsuleGeometry.translate(0, -borderTopWidth / 2, 0)
 		const borderTop = new Mesh(
-			new CapsuleGeometry(borderRadius, borderTopWidth, 15),
+			capsuleGeometry,
 			borderMaterial
 		)
+		borderTop.scale.y = 0
 		borderTop.translateY(borderTopX)
 		borderTop.rotateZ(Math.PI / 2)
-
+		borderTop.translateY(borderTopWidth / 2)
 		this.add(borderTop)
+		this.panelBorderTop = borderTop
 
 
 		const d1 = this.distanceFromPlanet / 2
-		const d2 =this.sizes.height / 2
+		const d2 = this.sizes.height / 2
 
 		const linkHeight = Math.sqrt(Math.pow(d1, 2) + Math.pow(d2, 2))
 		const realLinkHeight = linkHeight * 0.7
 		const planetLinkGroup = new Group()
+		const planetLinkGeometry = new CapsuleGeometry(borderRadius, realLinkHeight, 15)
+		planetLinkGeometry.translate(0, -realLinkHeight / 2, 0)
 		const planetLink = new Mesh(
-			new CapsuleGeometry(borderRadius, realLinkHeight, 15),
+			planetLinkGeometry,
 			borderMaterial
 		)
+		planetLink.scale.y = 0
 		const linkAngle = Math.atan(d1 / d2)
-		planetLink.translateY(-realLinkHeight / 2)
 		planetLinkGroup.add(planetLink)
-		planetLinkGroup.position.set(-borderTopWidth / 2, borderTopX, 0)
-		planetLinkGroup.rotateZ(-linkAngle)
+		planetLinkGroup.translateY(borderTopX)
+		planetLinkGroup.translateX(-borderTopWidth / 2)
+		// planetLinkGroup.position.set(-borderTopWidth, borderTopX, 0)
+		planetLinkGroup.rotateZ(Math.PI / 2 + linkAngle)
+		planetLink.translateY(realLinkHeight)
 		this.add(planetLinkGroup)
+		this.planetLink = planetLink
 	}
 
 	private async createTexture() {
@@ -100,7 +130,8 @@ export class AnimatedPlanetPanel extends Group {
 
 		const canvaSize = 100
 		const width = this.sizes.width * canvaSize
-		const {context, canvas} = createHiPPICanvas(width, this.sizes.height * canvaSize)
+		this.canvaHeight = this.sizes.height * canvaSize
+		const {context, canvas} = createHiPPICanvas(width, this.canvaHeight)
 		addText({
 			context,
 			text: this.infos.name,
@@ -110,7 +141,7 @@ export class AnimatedPlanetPanel extends Group {
 		})
 		const textFontSize = 12
 
-		function addInfo({label, value, y}: {label :string, value: string, y: number}) {
+		function addInfo({label, value, y}: { label: string, value: string, y: number }) {
 			addText({
 				context,
 				text: label + ': ',
@@ -162,17 +193,41 @@ export class AnimatedPlanetPanel extends Group {
 			maxWidth: width
 		})
 
+
 		// canvas contents will be used for a texture
 		const texture1 = new Texture(canvas)
-		texture1.needsUpdate = true
 		texture1.minFilter = LinearFilter
+		texture1.needsUpdate = true
 
 		this.material = new MeshBasicMaterial({
 			map: texture1,
 		})
 		this.material.transparent = true
+	}
 
-
+	public lauchAnimation() {
+		return new Promise(resolve => {
+			console.log(this.panelTexture)
+			const timeline = gsap.timeline({
+				onComplete: resolve
+			})
+			timeline.to(this.planetLink.scale, {
+				y: 1,
+				duration: 0.2,
+				ease: 'easeIn'
+			})
+			timeline.to(this.panelBorderTop.scale, {
+				y:1,
+				duration: 0.2,
+				ease: 'linear'
+			})
+			timeline.to(this.panel.scale, {
+				y: 1,
+				duration: 0.5,
+				ease: 'easeOut'
+			})
+			timeline.play()
+		})
 	}
 
 }

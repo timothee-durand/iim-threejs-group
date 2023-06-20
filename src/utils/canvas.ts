@@ -1,12 +1,24 @@
+import {exp} from 'three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements'
+
+const ratio = window.devicePixelRatio
+
+export function getCanvaSizeWithRatio({width, height}:{width: number, height: number}): {width: number, height: number} {
+	return {
+		width: width * ratio,
+		height: height * ratio
+	}
+}
+
 export function createHiPPICanvas(width: number, height: number): {
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D
 } {
-	const ratio = window.devicePixelRatio
+
 	const canvas = document.createElement('canvas')
 
-	canvas.width = width * ratio
-	canvas.height = height * ratio
+	const canvaSizes = getCanvaSizeWithRatio({width, height})
+	canvas.width = canvaSizes.width
+	canvas.height = canvaSizes.height
 	canvas.style.width = width + 'px'
 	canvas.style.height = height + 'px'
 	const context = canvas.getContext('2d')
