@@ -1,12 +1,10 @@
 import {
 	CapsuleGeometry,
-	CylinderGeometry,
 	DoubleSide,
 	Group,
 	LinearFilter,
 	Mesh,
 	MeshBasicMaterial,
-	NearestFilter,
 	PlaneGeometry,
 	Texture
 } from 'three'
@@ -40,7 +38,6 @@ export class AnimatedPlanetPanel extends Group {
 		super()
 		this.infos = infos
 		this.distanceFromPlanet = distanceFromPlanet
-
 		this.init()
 	}
 
@@ -177,6 +174,5 @@ export class AnimatedPlanetPanel extends Group {
 
 
 	}
-
 
 }

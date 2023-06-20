@@ -4,7 +4,7 @@ import {
 	Scene, Vector2,
 	WebGLRenderer
 } from 'three'
-import {AnimatedElement, isHoverableElement} from './utils/types'
+import {AnimatedElement, isAnimatedElement, isHoverableElement} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { Earth } from './parts/Earth'
@@ -17,18 +17,18 @@ import { Uranus } from './parts/Uranus'
 import { Neptune } from './parts/Neptune'
 
 export class SolarSystem {
+	private static instance: SolarSystem | null= null
 	private scene!: Scene
 	private renderer!: WebGLRenderer
 	private camera!: PerspectiveCamera
 	private animatedChildren: AnimatedElement[] = []
 	private controls!: OrbitControls
-	private ambientLight!: AmbientLight
 	private mouse = new Vector2()
 	private raycaster = new Raycaster()
 	private clock = new Clock()
 
 	constructor(canvas: HTMLCanvasElement) {
-		this.initScene(canvas)
+		this.initRenderer(canvas)
 		this.addCamera()
 		this.addOrbit()
 		this.addSun()
@@ -37,12 +37,12 @@ export class SolarSystem {
 		this.clock.start()
 
 		this.addLight()
+		this.initAnimatedChildren()
 		this.render()
 		this.addListeners()
-
 	}
 
-	private initScene(canvas: HTMLCanvasElement) {
+	private initRenderer(canvas: HTMLCanvasElement) {
 		this.scene = new Scene()
 		this.renderer = new WebGLRenderer({
 			antialias: true,
@@ -51,6 +51,10 @@ export class SolarSystem {
 		this.renderer.setSize(window.innerWidth, window.innerHeight)
 	}
 
+	public getCamera() {
+		return this.camera
+    }
+    
 	private addCamera() {
 		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
 		this.scene.add(camera)
@@ -61,7 +65,6 @@ export class SolarSystem {
 	private addSun() {
 		const sun = new Sun()
 		this.scene.add(sun)
-		this.animatedChildren.push(sun)
 	}
 
 	private addPlanets() {
@@ -95,12 +98,27 @@ export class SolarSystem {
 	}
 
 	private addLight() {
-		this.ambientLight = new AmbientLight(0xffffff, 0.5)
-		this.scene.add(this.ambientLight)
+		const ambientLight = new AmbientLight(0xffffff, 0.5)
+		this.scene.add(ambientLight)
+	}
+
+	private addCamera() {
+		const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+		this.scene.add(camera)
+		camera.position.z = 5
+		this.camera = camera
 	}
 
 	private addOrbit() {
 		this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+	}
+
+	private initAnimatedChildren() {
+		this.scene.traverse((child) => {
+			if (isAnimatedElement(child)) {
+				this.animatedChildren.push(child)
+			}
+		})
 	}
 
 	private addListeners() {
@@ -138,8 +156,7 @@ export class SolarSystem {
 		})
 	}
     
-	render() {
-		const elapsedTime = this.clock.getElapsedTime()
+	private render() {
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
 		this.controls.update()
