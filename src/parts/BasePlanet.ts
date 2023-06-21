@@ -2,10 +2,10 @@ import {
 	Group,
 	MeshStandardMaterial
 } from 'three'
-import {AnimatedElement, HoverableElement} from '../utils/types'
+import {AnimatedElement, ClickableElement} from '../utils/types'
 import {distanceToSunFactor} from '../utils/config'
 
-export class BasePlanet extends Group implements AnimatedElement, HoverableElement {
+export class BasePlanet extends Group implements AnimatedElement, ClickableElement {
 	protected material !: MeshStandardMaterial
 	protected radius !: number
 	protected distanceToSun !: number
@@ -22,7 +22,7 @@ export class BasePlanet extends Group implements AnimatedElement, HoverableEleme
 		this.position.z = Math.cos(elapsedTime * this.speed)	* this.distanceToSun * distanceToSunFactor
 	}
 
-	hover() {
+	onClick() {
 		this.isHovered = true
 	}
 

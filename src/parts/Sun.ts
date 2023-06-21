@@ -6,14 +6,14 @@ import {
 	PointLight,
 	SphereGeometry
 } from 'three'
-import {AnimatedElement, HoverableElement} from '../utils/types'
+import {AnimatedElement, ClickableElement} from '../utils/types'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
-export class Sun extends Group implements AnimatedElement, HoverableElement {
+export class Sun extends Group implements AnimatedElement, ClickableElement {
 	private material !: MeshStandardMaterial
 	private radius = 1
 	private isHovered = false
-	private panel!: AnimatedPlanetPanel
+	public panel!: AnimatedPlanetPanel
 	private planetGroup = new Group()
 
 	constructor() {
@@ -71,7 +71,7 @@ export class Sun extends Group implements AnimatedElement, HoverableElement {
 		this.planetGroup.rotateZ(0.001)
 	}
 
-	hover() {
+	onClick() {
 		this.isHovered = true
 	}
 
