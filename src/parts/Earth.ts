@@ -53,6 +53,7 @@ export class Earth extends BasePlanet {
 
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 		const body = new Mesh(geometry, this.material)
+		this.planet = body
 		this.add(body)
 	}
 

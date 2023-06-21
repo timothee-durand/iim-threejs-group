@@ -1,5 +1,5 @@
 import {
-	CylinderGeometry,
+	CylinderGeometry, DodecahedronGeometry,
 	Group,
 	Mesh, MeshBasicMaterial,
 	MeshStandardMaterial,
@@ -15,6 +15,7 @@ import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Saturne extends BasePlanet {
 	public panel!: AnimatedPlanetPanel
+	private asteroidBelt!: Group
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.5
@@ -24,7 +25,8 @@ export class Saturne extends BasePlanet {
 		this.addBody()
 		this.addLight()
 		this.addPosition()
-		this.generateDisk()
+		//this.generateDisk()
+		this.generateAsteroidBelt()
 		this.addOrbit(scene)
 		this.addPanel()
 	}
@@ -47,12 +49,14 @@ export class Saturne extends BasePlanet {
 
 	addPosition() {
 		this.translateX(this.distanceToSun * distanceToSunFactor)
+
 	}
 
 	addBody() {
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 
 		const body = new Mesh(geometry, this.material)
+		this.planet = body
 		this.add(body)
 	}
 
@@ -71,6 +75,35 @@ export class Saturne extends BasePlanet {
 
 		this.add(ray)
 		this.add(ray2)
+	}
+
+	generateAsteroidBelt() {
+		const numberOfAsteroids = 1000
+		const asteroidBelt = new Group()
+		const minDistanceFromPlanet = 5; // Distance minimale par rapport à la planète
+		const maxDistanceFromPlanet = 10; // Distance maximale par rapport à la planète
+		const maxDistanceXZ = 15;
+		for (let i = 0; i < numberOfAsteroids; i++) {
+			const geometry = new DodecahedronGeometry(Math.random()*0.2, 0)
+			const material = new MeshStandardMaterial({ color: '#777777' })
+			const asteroid = new Mesh(geometry, material)
+			const distanceFromPlanet = Math.random() * (maxDistanceFromPlanet - minDistanceFromPlanet) + minDistanceFromPlanet;
+			const randomX = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ;
+			const randomZ = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ;
+
+			const asteroidX = randomX * distanceFromPlanet
+			const asteroidY = Math.random() / 10 - 0.05
+			const asteroidZ = randomZ * distanceFromPlanet
+			asteroid.position.set(asteroidX, asteroidY, asteroidZ)
+			asteroid.position.normalize()
+			asteroid.position.multiplyScalar(0.9 + Math.random() * 0.1)
+			asteroid.lookAt(0, 0, 0)
+			asteroid.scale.set(Math.random() * 0.2, Math.random() * 0.2, Math.random() * 0.2)
+			asteroidBelt.add(asteroid)
+		}
+		asteroidBelt.rotateX(Math.PI / 3)
+		this.asteroidBelt = asteroidBelt
+		this.add(asteroidBelt)
 	}
 
 	addLight() {
@@ -98,5 +131,11 @@ export class Saturne extends BasePlanet {
 		})
 		this.add(this.panel)
 
+	}
+
+	animate(elapsedTime: number) {
+		super.animate(elapsedTime)
+		this.asteroidBelt.rotateY(0.005)
+		this.asteroidBelt.rotateX(0.005)
 	}
 }
