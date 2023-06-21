@@ -1,10 +1,10 @@
 import {
 	AmbientLight, Clock, Group,
 	PerspectiveCamera, Raycaster,
-	Scene, Vector2, Vector3,
+	Scene, Vector2,
 	WebGLRenderer
 } from 'three'
-import {AnimatedElement, isAnimatedElement, isHoverableElement} from './utils/types'
+import {AnimatedElement, isAnimatedElement, isClickable} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { Earth } from './parts/Earth'
@@ -15,7 +15,6 @@ import { Jupiter } from './parts/Jupiter'
 import { Saturne } from './parts/Saturne'
 import { Uranus } from './parts/Uranus'
 import { Neptune } from './parts/Neptune'
-import { BasePlanet } from './parts/BasePlanet'
 import { ButtonPlanet } from './parts/ButtonPlanet'
 import earthTexture from './assets/textures/earth.jpg'
 import mercuryTexture from './assets/textures/mercure.jpg'
@@ -26,10 +25,11 @@ import saturneTexture from './assets/textures/saturn.jpg'
 import uranusTexture from './assets/textures/uranus.jpg'
 import neptuneTexture from './assets/textures/neptune.jpg'
 import {addFont} from './utils/loaders'
-import {fonts} from './utils/config'
+import {cameraOffset, cameraRotation, fonts, initialCameraPosition} from './utils/config'
 import edgeOfTheGalaxyFont from './assets/fonts/edge-of-galaxy-poster.otf'
 import jostRegularFont from './assets/fonts/jost-regular.ttf'
 import jostBoldFont from './assets/fonts/jost-bold.ttf'
+import {gsap} from 'gsap'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -42,6 +42,9 @@ export class SolarSystem {
 	private mouse = new Vector2()
 	private raycaster = new Raycaster()
 	private clock = new Clock()
+	private selectedButton: ButtonPlanet | null = null
+	private oldElapsedTime = 0
+	private returnButton!:HTMLButtonElement
 
 	constructor(canvas: HTMLCanvasElement) {
 
@@ -60,6 +63,7 @@ export class SolarSystem {
 		this.addPlanets()
 
 		this.clock.start()
+		this.addReturnButton()
 
 		this.addLight()
 		this.initAnimatedChildren()
@@ -83,8 +87,8 @@ export class SolarSystem {
 		camera.position.y = 0
 		this.camera = camera
 
-		this.buttonGroup.position.z = 125
-		this.buttonGroup.position.y = 9
+		this.buttonGroup.position.copy(initialCameraPosition)
+		this.buttonGroup.rotation.x = cameraRotation.x
 	}
 
 	private addSun() {
@@ -128,7 +132,6 @@ export class SolarSystem {
 	private positionButtonInGroup(){
 		console.log(this.camera.position)
 		const buttonGroup = this.buttonGroup.children
-		const cameraAspect = this.camera.aspect
 		const cameraViewHeight = this.camera.getFilmHeight()
 		const buttonWidth = 0.1 // Adjust the width of each button as desired
 		const buttonDistance = 4 // Adjust the distance of the buttons from the camera
@@ -139,7 +142,7 @@ export class SolarSystem {
 		for (let i = 1; i < buttonGroup.length; i++) {
 			const buttonPlanet = buttonGroup[i] as ButtonPlanet // Type assertion
 			buttonPlanet.position.x = xOffset + ((i-0.5) * buttonWidth)
-			buttonPlanet.position.y = -(cameraViewHeight / 2)  +10.3
+			buttonPlanet.position.y = -0.3
 			buttonPlanet.position.z = buttonDistance
 			console.log(buttonPlanet.position)
 		}
@@ -190,8 +193,15 @@ export class SolarSystem {
 		intersectedObjects.forEach(intersectedObject => {
 			const object = intersectedObject.object
 			object.traverseAncestors((object) => {
-				if (isHoverableElement(object)) {
+				if (isClickable(object)) {
 					object.onClick(this.buttonGroup)
+
+					if(object instanceof ButtonPlanet){
+						if(this.selectedButton !== null) {
+							this.selectedButton.unselect()
+						}
+						this.selectedButton = object
+					}
 					return
 				}
 			})
@@ -203,12 +213,54 @@ export class SolarSystem {
 		await addFont(fonts.descriptionFont, jostRegularFont)
 		await addFont(fonts.boldFont, jostBoldFont)
 	}
+
+	private stickToSelectedPlanet() {
+		if(this.selectedButton !== null && !this.selectedButton.isTransitionning){
+			this.returnButton.classList.remove('hide')
+			this.buttonGroup.position.copy(this.selectedButton.planet.position).add(cameraOffset)
+		}
+	}
+
+	private get isTransitionning() {
+		return this.selectedButton && this.selectedButton.isTransitionning
+	}
     
 	private render() {
-		const elapsedTime = 0 // this.clock.getElapsedTime()
+		if(this.isTransitionning && this.clock.running) {
+			this.clock.stop()
+			this.clock.elapsedTime = this.oldElapsedTime
+		}
+		if(!this.isTransitionning && !this.clock.running) {
+			this.clock.start()
+			this.clock.elapsedTime = this.oldElapsedTime
+		}
+		const elapsedTime = this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
-		//this.controls.update()
+		this.stickToSelectedPlanet()
 		window.requestAnimationFrame(() => this.render())
+		this.oldElapsedTime = elapsedTime
+	}
+
+	private addReturnButton() {
+		const button = document.createElement('button')
+		button.type = 'button'
+		button.classList.add('return-button')
+		button.innerHTML = 'Return'
+		button.addEventListener('click', () => {
+			gsap.to(this.buttonGroup.position, {
+				x : initialCameraPosition.x,
+				y: initialCameraPosition.y,
+				z: initialCameraPosition.z,
+				duration : 0.5,
+				ease : 'power2.out'
+			})
+			this.selectedButton?.unselect()
+			this.selectedButton = null
+			this.returnButton.classList.add('hide')
+		})
+		document.body.appendChild(button)
+		this.returnButton = button
+		this.returnButton.classList.add('hide')
 	}
 }

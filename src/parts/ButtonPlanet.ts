@@ -1,22 +1,23 @@
 import {
-	Camera,
-	CylinderGeometry,
 	Group,
-	Mesh,
-	MeshStandardMaterial,
-	PointLight, Scene,
-	SphereGeometry, TextureLoader, TorusGeometry
+	Mesh, MeshBasicMaterial,
+	SphereGeometry, TextureLoader, Vector3
 } from 'three'
 import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
+import {gsap} from 'gsap'
+import {cameraOffset} from '../utils/config'
 
 
 export class ButtonPlanet extends Group implements AnimatedElement, ClickableElement {
 
-	private texture !: string
-	private radius: number
-	private material!: MeshStandardMaterial
-	private planet: BasePlanet
+	private readonly texture !: string
+	private readonly radius: number
+	private material!: MeshBasicMaterial
+	public planet: BasePlanet
+	private readonly rotationSpeed: number
+	public isTransitionning = false
+
 
 	constructor(texture: string, planet: BasePlanet) {
 		super()
@@ -25,38 +26,53 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 		this.radius = 0.03
 		this.addMaterial()
 		this.addBody()
-		this.addLight()
+		this.rotationSpeed = Math.random() * 0.01
 	}
 
 	async addMaterial() {
 		const texture = new TextureLoader().load(this.texture)
-		this.material = new MeshStandardMaterial({ roughness: 1, map: texture })
+		this.material = new MeshBasicMaterial({ map: texture })
 	}
 
 	addBody() {
-
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 		const body = new Mesh(geometry, this.material)
 		this.add(body)
 	}
 
-	addLight() {
-		const pointLight = new PointLight(0xffffff, 0.1)
-		pointLight.position.set(0, 2, 4)
-		this.add(pointLight)
-
-		const pointLight2 = new PointLight(0xffffff, 0.1)
-		pointLight2.position.set(0, -2, -4)
-		this.add(pointLight2)
-	}
 
 	animate() {
-		this.rotation.y += 0.02
+		this.rotation.y += this.rotationSpeed
 	}
 
 	onClick(buttonGroup: Group) {
-		console.log(buttonGroup.position)
-		buttonGroup.position.set(this.planet.position.x + 1, this.planet.position.y, this.planet.position.z)
-		this.planet.panel.lauchAnimation()
+		const timeline =  gsap.timeline({
+			onStart:() => {
+				this.isTransitionning = true
+			},
+			onComplete: () => {
+				this.isTransitionning = false
+				this.planet.panel.openPanel()
+			}
+		})
+		timeline.to(buttonGroup.position, {
+			x: 0,
+			y: 9,
+			z: 100,
+			duration: 0.5,
+			ease: 'power2.out',
+		})
+		timeline.to(buttonGroup.position, {
+			x: this.planet.position.x + cameraOffset.x,
+			y: this.planet.position.y + cameraOffset.y,
+			z: this.planet.position.z + cameraOffset.z,
+			duration: 0.5,
+			ease: 'power2.out',
+		}, 'planet')
+
+	}
+
+	unselect() {
+		this.planet.panel.closePanel()
 	}
 }

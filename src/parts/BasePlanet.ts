@@ -4,6 +4,7 @@ import {
 } from 'three'
 import {AnimatedElement, ClickableElement} from '../utils/types'
 import {distanceToSunFactor} from '../utils/config'
+import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class BasePlanet extends Group implements AnimatedElement, ClickableElement {
 	protected material !: MeshStandardMaterial
@@ -11,6 +12,7 @@ export class BasePlanet extends Group implements AnimatedElement, ClickableEleme
 	protected distanceToSun !: number
 	protected speed !: number
 	private isHovered = false
+	panel !: AnimatedPlanetPanel
 
 	constructor() {
 		super()
