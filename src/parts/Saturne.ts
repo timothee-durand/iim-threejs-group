@@ -9,6 +9,7 @@ import {
 import {AnimatedElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import saturnTexture from '../assets/textures/saturn.jpg'
+import {distanceToSunFactor} from '../utils/config'
 
 
 export class Saturne extends BasePlanet {
@@ -29,7 +30,7 @@ export class Saturne extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new TorusGeometry(this.distanceToSun, 0.01, 20, 100)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, 0.01, 20, 100)
 		const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 1 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -43,7 +44,7 @@ export class Saturne extends BasePlanet {
 		this.material = new MeshStandardMaterial({ roughness: 1, map: texture })	}
 
 	addPosition() {
-		this.translateX(this.distanceToSun)
+		this.translateX(this.distanceToSun * distanceToSunFactor)
 	}
 
 	addBody() {

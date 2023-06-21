@@ -8,12 +8,9 @@ import {
 	PlaneGeometry,
 	Texture
 } from 'three'
-import {addFont} from '../utils/loaders'
-import edgeOfTheGalaxyFont from '../assets/fonts/edge-of-galaxy-poster.otf'
-import jostRegularFont from '../assets/fonts/jost-regular.ttf'
-import jostBoldFont from '../assets/fonts/jost-bold.ttf'
-import {addText, createHiPPICanvas, getCanvaSizeWithRatio} from '../utils/canvas'
+import {addText, createHiPPICanvas} from '../utils/canvas'
 import {gsap} from 'gsap'
+import {fonts} from '../utils/config'
 
 interface PlanetInfos {
     name: string
@@ -55,13 +52,12 @@ export class AnimatedPlanetPanel extends Group {
 		this.init()
 	}
 
-	private async init() {
-		await this.createTexture()
+	private init() {
+		this.createTexture()
 		this.addPanel()
 		this.addBorder()
 
 		this.translateX(this.distanceFromPlanet)
-		this.lauchAnimation()
 	}
 
 	private addPanel() {
@@ -120,14 +116,7 @@ export class AnimatedPlanetPanel extends Group {
 		this.planetLink = planetLink
 	}
 
-	private async createTexture() {
-		const titleFont = 'edge-galaxy'
-		const descriptionFont = 'jost-regular'
-		const boldFont = 'jost-bold'
-		await addFont(titleFont, edgeOfTheGalaxyFont)
-		await addFont(descriptionFont, jostRegularFont)
-		await addFont(boldFont, jostBoldFont)
-
+	private createTexture() {
 		const canvaSize = 100
 		const width = this.sizes.width * canvaSize
 		this.canvaHeight = this.sizes.height * canvaSize
@@ -137,7 +126,7 @@ export class AnimatedPlanetPanel extends Group {
 			text: this.infos.name,
 			fontSize: 50,
 			y: 0,
-			font: titleFont
+			font: fonts.titleFont
 		})
 		const textFontSize = 12
 
@@ -147,7 +136,7 @@ export class AnimatedPlanetPanel extends Group {
 				text: label + ': ',
 				fontSize: textFontSize,
 				y,
-				font: boldFont
+				font: fonts.boldFont
 			})
 			addText({
 				context,
@@ -155,7 +144,7 @@ export class AnimatedPlanetPanel extends Group {
 				fontSize: textFontSize,
 				y,
 				x: 100,
-				font: descriptionFont
+				font: fonts.descriptionFont
 			})
 		}
 
@@ -189,7 +178,7 @@ export class AnimatedPlanetPanel extends Group {
 			text: this.infos.description,
 			fontSize: textFontSize,
 			y: 160,
-			font: descriptionFont,
+			font: fonts.descriptionFont,
 			maxWidth: width
 		})
 
