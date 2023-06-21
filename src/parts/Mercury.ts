@@ -1,16 +1,17 @@
 import {
-	CylinderGeometry,
 	Group,
 	Mesh,
 	MeshStandardMaterial,
 	PointLight, Scene,
 	SphereGeometry, TextureLoader, TorusGeometry
 } from 'three'
-import {AnimatedElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import mercuryTexture from '../assets/textures/mercure.jpg'
+import {distanceToSunFactor} from '../utils/config'
+import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Mercury extends BasePlanet {
+	private panel!: AnimatedPlanetPanel
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.35
@@ -21,13 +22,14 @@ export class Mercury extends BasePlanet {
 		this.addLight()
 		this.addPosition()
 		this.addOrbit(scene)
+		this.addPanel()
 
 	}
 
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new TorusGeometry(this.distanceToSun, 0.01, 20, 100)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, 0.01, 20, 100)
 		const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 1 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -41,7 +43,7 @@ export class Mercury extends BasePlanet {
 		this.material = new MeshStandardMaterial({ roughness: 1, map: texture })	}
 
 	addPosition() {
-		this.translateX(this.distanceToSun)
+		this.translateX(this.distanceToSun * distanceToSunFactor)
 	}
 
 	addBody() {
@@ -58,5 +60,24 @@ export class Mercury extends BasePlanet {
 		const pointLight2 = new PointLight(0xffffff, 0.1)
 		pointLight2.position.set(0, -2, -4)
 		this.add(pointLight2)
+	}
+
+	addPanel() {
+		const mercuryInfos =
+
+			{
+				'name': 'Mercury',
+				'radius': 2439, // kilometers
+				'distance': 57.9e6, // kilometers (average distance from the Sun)
+				'speed': 47.9, // kilometers per second (orbital speed around the Sun)
+				'mass': 3.3011e23, // kilograms
+				'temperature': 167, // degrees Celsius (average surface temperature)
+				'description': 'Mercury is the smallest and innermost planet in our solar system. It has a radius of approximately 2,439 kilometers and an average distance from the Sun of about 57.9 million kilometers. Mercury orbits the Sun at a speed of around 47.9 kilometers per second. It has a mass of approximately 3.3011 × 10^23 kilograms. The average surface temperature on Mercury is around 167 degrees Celsius.'
+			}
+		this.panel = new AnimatedPlanetPanel({
+			infos: mercuryInfos, distanceFromPlanet: 3,  sizes: {width:3.5, height : 2.5, padding: 0.2}
+		})
+		this.add(this.panel)
+
 	}
 }

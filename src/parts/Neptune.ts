@@ -9,7 +9,10 @@ import {
 import {AnimatedElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import neptuneTexture from '../assets/textures/neptune.jpg'
+import {distanceToSunFactor} from '../utils/config'
+import {AnimatedPlanetPanel} from './AnimatedPanel'
 export class Neptune extends BasePlanet  {
+	private panel!: AnimatedPlanetPanel
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.7
@@ -20,13 +23,14 @@ export class Neptune extends BasePlanet  {
 		this.addLight()
 		this.addPosition()
 		this.addOrbit(scene)
+		this.addPanel()
 
 	}
 
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new TorusGeometry(this.distanceToSun, 0.01, 20, 100)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, 0.01, 20, 100)
 		const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 1 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -41,7 +45,7 @@ export class Neptune extends BasePlanet  {
 	}
 
 	addPosition() {
-		this.translateX(this.distanceToSun)
+		this.translateX(this.distanceToSun * distanceToSunFactor)
 	}
 
 	addBody() {
@@ -58,5 +62,23 @@ export class Neptune extends BasePlanet  {
 		const pointLight2 = new PointLight(0xffffff, 0.1)
 		pointLight2.position.set(0, -2, -4)
 		this.add(pointLight2)
+	}
+
+	addPanel() {
+		const neptuneInfos =
+			{
+				'name': 'Neptune',
+				'radius': 24622, // kilometers
+				'distance': 4.498e9, // kilometers (average distance from the Sun)
+				'speed': 5.4, // kilometers per second (orbital speed around the Sun)
+				'mass': 1.024e26, // kilograms
+				'temperature': -201, // degrees Celsius (average surface temperature)
+				'description': 'Neptune is the eighth and farthest known planet from the Sun in our solar system. It has a radius of approximately 24,622 kilometers and an average distance from the Sun of about 4.498 billion kilometers. Neptune orbits the Sun at a speed of around 5.4 kilometers per second. It has a mass of approximately 1.024 × 10^26 kilograms. The average surface temperature on Neptune is around -201 degrees Celsius.'
+			}
+		this.panel = new AnimatedPlanetPanel({
+			infos: neptuneInfos, distanceFromPlanet: 3,  sizes: {width:2, height : 3.5, padding: 0.2}
+		})
+		this.add(this.panel)
+
 	}
 }

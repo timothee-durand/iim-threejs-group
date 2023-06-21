@@ -8,12 +8,9 @@ import {
 	PlaneGeometry,
 	Texture
 } from 'three'
-import {addFont} from '../utils/loaders'
-import edgeOfTheGalaxyFont from '../assets/fonts/edge-of-galaxy-poster.otf'
-import jostRegularFont from '../assets/fonts/jost-regular.ttf'
-import jostBoldFont from '../assets/fonts/jost-bold.ttf'
-import {addText, createHiPPICanvas, getCanvaSizeWithRatio} from '../utils/canvas'
+import {addText, createHiPPICanvas} from '../utils/canvas'
 import {gsap} from 'gsap'
+import {fonts} from '../utils/config'
 
 interface PlanetInfos {
     name: string
@@ -39,29 +36,31 @@ export class AnimatedPlanetPanel extends Group {
 	private planetLink!: Mesh
 	private panelBorderTop!: Mesh
 	private panel!: Mesh
-	private canvas!: HTMLCanvasElement
 	private canvaHeight!: number
 	private panelTexture!: Texture
 
-	constructor(infos: PlanetInfos, distanceFromPlanet: number, sizes: AnimatedPanelSizes = {
-		width: 2.3,
-		height: 4,
-		padding: 0.2
-	}) {
+	constructor({infos, distanceFromPlanet, sizes}: {
+        infos: PlanetInfos,
+        distanceFromPlanet: number,
+        sizes?: AnimatedPanelSizes,
+    }) {
 		super()
-		this.sizes = sizes
+		this.sizes = sizes ?? {
+			width: 2.3,
+			height: 4,
+			padding: 0.2
+		}
 		this.infos = infos
 		this.distanceFromPlanet = distanceFromPlanet
 		this.init()
 	}
 
-	private async init() {
-		await this.createTexture()
+	private init() {
+		this.createTexture()
 		this.addPanel()
 		this.addBorder()
 
 		this.translateX(this.distanceFromPlanet)
-		this.lauchAnimation()
 	}
 
 	private addPanel() {
@@ -113,21 +112,13 @@ export class AnimatedPlanetPanel extends Group {
 		planetLinkGroup.add(planetLink)
 		planetLinkGroup.translateY(borderTopX)
 		planetLinkGroup.translateX(-borderTopWidth / 2)
-		// planetLinkGroup.position.set(-borderTopWidth, borderTopX, 0)
 		planetLinkGroup.rotateZ(Math.PI / 2 + linkAngle)
 		planetLink.translateY(realLinkHeight)
 		this.add(planetLinkGroup)
 		this.planetLink = planetLink
 	}
 
-	private async createTexture() {
-		const titleFont = 'edge-galaxy'
-		const descriptionFont = 'jost-regular'
-		const boldFont = 'jost-bold'
-		await addFont(titleFont, edgeOfTheGalaxyFont)
-		await addFont(descriptionFont, jostRegularFont)
-		await addFont(boldFont, jostBoldFont)
-
+	private createTexture() {
 		const canvaSize = 100
 		const width = this.sizes.width * canvaSize
 		this.canvaHeight = this.sizes.height * canvaSize
@@ -137,7 +128,7 @@ export class AnimatedPlanetPanel extends Group {
 			text: this.infos.name,
 			fontSize: 50,
 			y: 0,
-			font: titleFont
+			font: fonts.titleFont
 		})
 		const textFontSize = 12
 
@@ -147,7 +138,7 @@ export class AnimatedPlanetPanel extends Group {
 				text: label + ': ',
 				fontSize: textFontSize,
 				y,
-				font: boldFont
+				font: fonts.boldFont
 			})
 			addText({
 				context,
@@ -155,7 +146,7 @@ export class AnimatedPlanetPanel extends Group {
 				fontSize: textFontSize,
 				y,
 				x: 100,
-				font: descriptionFont
+				font: fonts.descriptionFont
 			})
 		}
 
@@ -189,7 +180,7 @@ export class AnimatedPlanetPanel extends Group {
 			text: this.infos.description,
 			fontSize: textFontSize,
 			y: 160,
-			font: descriptionFont,
+			font: fonts.descriptionFont,
 			maxWidth: width
 		})
 
@@ -217,7 +208,7 @@ export class AnimatedPlanetPanel extends Group {
 				ease: 'easeIn'
 			})
 			timeline.to(this.panelBorderTop.scale, {
-				y:1,
+				y: 1,
 				duration: 0.2,
 				ease: 'linear'
 			})

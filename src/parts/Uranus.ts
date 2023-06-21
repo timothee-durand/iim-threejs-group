@@ -9,8 +9,11 @@ import {
 import {AnimatedElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import uranusTexture from '../assets/textures/uranus.jpg'
+import {distanceToSunFactor} from '../utils/config'
+import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Uranus extends BasePlanet {
+	private panel!: AnimatedPlanetPanel
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.7
@@ -21,12 +24,13 @@ export class Uranus extends BasePlanet {
 		this.addLight()
 		this.addPosition()
 		this.addOrbit(scene)
+		this.addPanel()
 	}
 
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new TorusGeometry(this.distanceToSun, 0.01, 20, 100)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, 0.01, 20, 100)
 		const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 1 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -39,7 +43,7 @@ export class Uranus extends BasePlanet {
 		this.material = new MeshStandardMaterial({ roughness: 1, map: texture })	}
 
 	addPosition() {
-		this.translateX(this.distanceToSun)
+		this.translateX(this.distanceToSun * distanceToSunFactor)
 	}
 
 	addBody() {
@@ -56,5 +60,23 @@ export class Uranus extends BasePlanet {
 		const pointLight2 = new PointLight(0xffffff, 0.1)
 		pointLight2.position.set(0, -2, -4)
 		this.add(pointLight2)
+	}
+
+	addPanel() {
+		const uranusInfos =
+			{
+				'name': 'Uranus',
+				'radius': 25362, // kilometers
+				'distance': 2.871e9, // kilometers (average distance from the Sun)
+				'speed': 6.8, // kilometers per second (orbital speed around the Sun)
+				'mass': 8.681e25, // kilograms
+				'temperature': -197, // degrees Celsius (average surface temperature)
+				'description': 'Uranus is the seventh planet from the Sun and the third-largest planet in our solar system. It has a radius of approximately 25,362 kilometers and an average distance from the Sun of about 2.871 billion kilometers. Uranus orbits the Sun at a speed of around 6.8 kilometers per second. It has a mass of approximately 8.681 × 10^25 kilograms. The average surface temperature on Uranus is around -197 degrees Celsius.'
+			}
+		this.panel = new AnimatedPlanetPanel({
+			infos: uranusInfos, distanceFromPlanet: 3,  sizes: {width:2.5, height : 3, padding: 0.2}
+		})
+		this.add(this.panel)
+
 	}
 }
