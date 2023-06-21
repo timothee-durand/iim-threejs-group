@@ -13,7 +13,7 @@ import {distanceToSunFactor} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Jupiter extends BasePlanet {
-	public panel!: AnimatedPlanetPanel
+
 	constructor(scene: Scene) {
 		super()
 		this.radius = 1

@@ -38,6 +38,7 @@ export class AnimatedPlanetPanel extends Group {
 	private panel!: Mesh
 	private canvaHeight!: number
 	private panelTexture!: Texture
+	private timeline!: gsap.core.Timeline
 
 	constructor({infos, distanceFromPlanet, sizes}: {
         infos: PlanetInfos,
@@ -61,6 +62,7 @@ export class AnimatedPlanetPanel extends Group {
 		this.addBorder()
 
 		this.translateX(this.distanceFromPlanet)
+		this.createTimeline()
 	}
 
 	private addPanel() {
@@ -196,29 +198,32 @@ export class AnimatedPlanetPanel extends Group {
 		this.material.transparent = true
 	}
 
-	public lauchAnimation() {
-		return new Promise(resolve => {
-			console.log(this.panelTexture)
-			const timeline = gsap.timeline({
-				onComplete: resolve
-			})
-			timeline.to(this.planetLink.scale, {
-				y: 1,
-				duration: 0.2,
-				ease: 'easeIn'
-			})
-			timeline.to(this.panelBorderTop.scale, {
-				y: 1,
-				duration: 0.2,
-				ease: 'linear'
-			})
-			timeline.to(this.panel.scale, {
-				y: 1,
-				duration: 0.5,
-				ease: 'easeOut'
-			})
-			timeline.play()
+	private createTimeline() {
+		const timeline = gsap.timeline({paused: true})
+		timeline.to(this.planetLink.scale, {
+			y: 1,
+			duration: 0.2,
+			ease: 'easeIn'
 		})
+		timeline.to(this.panelBorderTop.scale, {
+			y: 1,
+			duration: 0.2,
+			ease: 'linear'
+		})
+		timeline.to(this.panel.scale, {
+			y: 1,
+			duration: 0.5,
+			ease: 'easeOut'
+		})
+		this.timeline = timeline
 	}
 
+	public openPanel() {
+		this.timeline.play()
+	}
+
+	public closePanel (){
+		console.log('here')
+		this.timeline.reverse()
+	}
 }
