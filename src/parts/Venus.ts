@@ -1,12 +1,12 @@
 import {
 	CylinderGeometry,
 	Group,
-	Mesh,
+	Mesh, MeshBasicMaterial,
 	MeshStandardMaterial,
-	PointLight, Scene,
+	PointLight, RingGeometry, Scene,
 	SphereGeometry, TextureLoader, TorusGeometry
 } from 'three'
-import {AnimatedElement, HoverableElement} from '../utils/types'
+import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import venusTexture from '../assets/textures/venus.jpg'
 
@@ -25,8 +25,8 @@ export class Venus extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new TorusGeometry(this.distanceToSun, 0.01, 20, 100)
-		const material = new MeshStandardMaterial({ color: '#ffffff', roughness: 1 })
+		const geometry = new RingGeometry(this.distanceToSun - 0.05, this.distanceToSun + 0.05, 60)
+		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
 		orbitGroup.add(orbit) // Add the orbit to the orbit group

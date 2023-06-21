@@ -1,7 +1,7 @@
 import {
-	AmbientLight, Clock,
+	AmbientLight, Clock, Group,
 	PerspectiveCamera, Raycaster,
-	Scene, Vector2,
+	Scene, Vector2, Vector3,
 	WebGLRenderer
 } from 'three'
 import {AnimatedElement, isAnimatedElement, isHoverableElement} from './utils/types'
@@ -15,12 +15,23 @@ import { Jupiter } from './parts/Jupiter'
 import { Saturne } from './parts/Saturne'
 import { Uranus } from './parts/Uranus'
 import { Neptune } from './parts/Neptune'
+import { BasePlanet } from './parts/BasePlanet'
+import { ButtonPlanet } from './parts/ButtonPlanet'
+import earthTexture from './assets/textures/earth.jpg'
+import mercuryTexture from './assets/textures/mercure.jpg'
+import venusTexture from './assets/textures/venus.jpg'
+import marsTexture from './assets/textures/mars.jpg'
+import jupiterTexture from './assets/textures/jupiter.jpg'
+import saturneTexture from './assets/textures/saturn.jpg'
+import uranusTexture from './assets/textures/uranus.jpg'
+import neptuneTexture from './assets/textures/neptune.jpg'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
 	private scene!: Scene
 	private renderer!: WebGLRenderer
 	private camera!: PerspectiveCamera
+	private buttonGroup !: Group
 	private animatedChildren: AnimatedElement[] = []
 	private controls!: OrbitControls
 	private mouse = new Vector2()
@@ -28,9 +39,14 @@ export class SolarSystem {
 	private clock = new Clock()
 
 	constructor(canvas: HTMLCanvasElement) {
+
 		this.initRenderer(canvas)
+
+		this.buttonGroup = new Group()
+		this.scene.add(this.buttonGroup)
+
 		this.addCamera()
-		this.addOrbit()
+		//this.addOrbit()
 		this.addSun()
 		this.addPlanets()
 
@@ -57,10 +73,13 @@ export class SolarSystem {
     
 	private addCamera() {
 		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
-		this.scene.add(camera)
-		camera.position.z = 30
-		camera.position.y = 3
+		this.buttonGroup.add(camera)
+		camera.position.z = 5
+		camera.position.y = 0
 		this.camera = camera
+
+		this.buttonGroup.position.z = 30
+		this.buttonGroup.position.y = 3
 	}
 
 	private addSun() {
@@ -78,6 +97,17 @@ export class SolarSystem {
 		const uranus = new Uranus(this.scene)
 		const neptune = new Neptune(this.scene)
 
+		this.buttonGroup.add(new ButtonPlanet(earthTexture, earth))
+		this.buttonGroup.add(new ButtonPlanet(mercuryTexture, mercury))
+		this.buttonGroup.add(new ButtonPlanet(venusTexture, venus))
+		this.buttonGroup.add(new ButtonPlanet(marsTexture, mars))
+		this.buttonGroup.add(new ButtonPlanet(jupiterTexture, jupiter))
+		this.buttonGroup.add(new ButtonPlanet(saturneTexture, saturne))
+		this.buttonGroup.add(new ButtonPlanet(uranusTexture, uranus))
+		this.buttonGroup.add(new ButtonPlanet(neptuneTexture, neptune))
+
+		this.positionButtonInGroup()
+
 		this.scene.add(venus)
 		this.scene.add(mercury)
 		this.scene.add(earth)
@@ -86,8 +116,29 @@ export class SolarSystem {
 		this.scene.add(saturne)
 		this.scene.add(uranus)
 		this.scene.add(neptune)
+
 	}
 
+
+	private positionButtonInGroup(){
+		console.log(this.camera.position)
+		const buttonGroup = this.buttonGroup.children
+		const cameraAspect = this.camera.aspect
+		const cameraViewHeight = this.camera.getFilmHeight()
+		const buttonWidth = 0.1 // Adjust the width of each button as desired
+		const buttonDistance = 4 // Adjust the distance of the buttons from the camera
+
+		const totalButtons = buttonGroup.length - 1
+		const xOffset = -((totalButtons * buttonWidth) / 2)
+
+		for (let i = 1; i < buttonGroup.length; i++) {
+			const buttonPlanet = buttonGroup[i] as ButtonPlanet // Type assertion
+			buttonPlanet.position.x = xOffset + ((i-0.5) * buttonWidth)
+			buttonPlanet.position.y = -(cameraViewHeight / 2)  +10.3
+			buttonPlanet.position.z = buttonDistance
+			console.log(buttonPlanet.position)
+		}
+	}
 	private addLight() {
 		const ambientLight = new AmbientLight(0xffffff, 0.5)
 		this.scene.add(ambientLight)
@@ -113,6 +164,8 @@ export class SolarSystem {
 			window.removeEventListener('resize', () => this.onResize())
 			window.removeEventListener('mousemove', (event) => this.onMouseMove(event))
 		})
+
+		window.addEventListener('click', () => this.checkInteractions())
 	}
 
 	private onResize() {
@@ -133,7 +186,7 @@ export class SolarSystem {
 			const object = intersectedObject.object
 			object.traverseAncestors((object) => {
 				if (isHoverableElement(object)) {
-					object.hover()
+					object.onClick(this.buttonGroup)
 					return
 				}
 			})
@@ -144,8 +197,7 @@ export class SolarSystem {
 		const elapsedTime = this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
-		this.controls.update()
-		this.checkInteractions()
+		//this.controls.update()
 		window.requestAnimationFrame(() => this.render())
 	}
 }

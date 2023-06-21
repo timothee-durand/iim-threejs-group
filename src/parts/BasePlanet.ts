@@ -7,9 +7,9 @@ import {
 	PointLight, Scene,
 	SphereGeometry, TorusGeometry
 } from 'three'
-import {AnimatedElement, HoverableElement} from '../utils/types'
+import {AnimatedElement, ClickableElement} from '../utils/types'
 
-export class BasePlanet extends Group implements AnimatedElement, HoverableElement {
+export class BasePlanet extends Group implements AnimatedElement, ClickableElement {
 	protected material !: MeshStandardMaterial
 	protected radius !: number
 	protected distanceToSun !: number
@@ -27,7 +27,7 @@ export class BasePlanet extends Group implements AnimatedElement, HoverableEleme
 		this.position.z = Math.cos(elapsedTime * this.speed)	* this.distanceToSun
 	}
 
-	hover() {
+	onClick() {
 		this.isHovered = true
 	}
 
