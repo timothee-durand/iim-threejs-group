@@ -10,8 +10,10 @@ import {AnimatedElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import venusTexture from '../assets/textures/venus.jpg'
 import {distanceToSunFactor} from '../utils/config'
+import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Venus extends BasePlanet {
+	private panel!: AnimatedPlanetPanel
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.45
@@ -22,6 +24,7 @@ export class Venus extends BasePlanet {
 		this.addLight()
 		this.addPosition()
 		this.addOrbit(scene)
+		this.addPanel()
 	}
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
@@ -58,5 +61,23 @@ export class Venus extends BasePlanet {
 		const pointLight2 = new PointLight(0xffffff, 0.1)
 		pointLight2.position.set(0, -2, -4)
 		this.add(pointLight2)
+	}
+
+	addPanel() {
+		const venusInfos =
+			{
+				'name': 'Venus',
+				'radius': 6051, // kilometers
+				'distance': 108.2e6, // kilometers (average distance from the Sun)
+				'speed': 35.0, // kilometers per second (orbital speed around the Sun)
+				'mass': 4.867e24, // kilograms
+				'temperature': 464, // degrees Celsius (average surface temperature)
+				'description': 'Venus is the second planet from the Sun and the hottest planet in our solar system. It has a radius of approximately 6,051 kilometers and an average distance from the Sun of about 108.2 million kilometers. Venus orbits the Sun at a speed of around 35.0 kilometers per second. It has a mass of approximately 4.867 × 10^24 kilograms. The average surface temperature on Venus is around 464 degrees Celsius, making it the hottest planet due to its thick atmosphere and greenhouse effect.'
+			}
+		this.panel = new AnimatedPlanetPanel({
+			infos: venusInfos, distanceFromPlanet: 3,  sizes: {width:3.4, height : 2.8, padding: 0.2}
+		})
+		this.add(this.panel)
+
 	}
 }

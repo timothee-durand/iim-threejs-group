@@ -36,17 +36,20 @@ export class AnimatedPlanetPanel extends Group {
 	private planetLink!: Mesh
 	private panelBorderTop!: Mesh
 	private panel!: Mesh
-	private canvas!: HTMLCanvasElement
 	private canvaHeight!: number
 	private panelTexture!: Texture
 
-	constructor(infos: PlanetInfos, distanceFromPlanet: number, sizes: AnimatedPanelSizes = {
-		width: 2.3,
-		height: 4,
-		padding: 0.2
-	}) {
+	constructor({infos, distanceFromPlanet, sizes}: {
+        infos: PlanetInfos,
+        distanceFromPlanet: number,
+        sizes?: AnimatedPanelSizes,
+    }) {
 		super()
-		this.sizes = sizes
+		this.sizes = sizes ?? {
+			width: 2.3,
+			height: 4,
+			padding: 0.2
+		}
 		this.infos = infos
 		this.distanceFromPlanet = distanceFromPlanet
 		this.init()
@@ -109,7 +112,6 @@ export class AnimatedPlanetPanel extends Group {
 		planetLinkGroup.add(planetLink)
 		planetLinkGroup.translateY(borderTopX)
 		planetLinkGroup.translateX(-borderTopWidth / 2)
-		// planetLinkGroup.position.set(-borderTopWidth, borderTopX, 0)
 		planetLinkGroup.rotateZ(Math.PI / 2 + linkAngle)
 		planetLink.translateY(realLinkHeight)
 		this.add(planetLinkGroup)
@@ -206,7 +208,7 @@ export class AnimatedPlanetPanel extends Group {
 				ease: 'easeIn'
 			})
 			timeline.to(this.panelBorderTop.scale, {
-				y:1,
+				y: 1,
 				duration: 0.2,
 				ease: 'linear'
 			})
