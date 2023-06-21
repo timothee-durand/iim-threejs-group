@@ -1,13 +1,9 @@
 import {
-	Clock,
-	CylinderGeometry,
 	Group,
-	Mesh,
-	MeshStandardMaterial,
-	PointLight, Scene,
-	SphereGeometry, TorusGeometry
+	MeshStandardMaterial
 } from 'three'
 import {AnimatedElement, ClickableElement} from '../utils/types'
+import {distanceToSunFactor} from '../utils/config'
 
 export class BasePlanet extends Group implements AnimatedElement, ClickableElement {
 	protected material !: MeshStandardMaterial
@@ -18,13 +14,12 @@ export class BasePlanet extends Group implements AnimatedElement, ClickableEleme
 
 	constructor() {
 		super()
-
 	}
 
 
 	animate(elapsedTime: number) {
-		this.position.x = Math.sin(elapsedTime * this.speed) * this.distanceToSun
-		this.position.z = Math.cos(elapsedTime * this.speed)	* this.distanceToSun
+		this.position.x = Math.sin(elapsedTime * this.speed) * this.distanceToSun * distanceToSunFactor
+		this.position.z = Math.cos(elapsedTime * this.speed)	* this.distanceToSun * distanceToSunFactor
 	}
 
 	onClick() {

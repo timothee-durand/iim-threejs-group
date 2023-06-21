@@ -25,6 +25,11 @@ import jupiterTexture from './assets/textures/jupiter.jpg'
 import saturneTexture from './assets/textures/saturn.jpg'
 import uranusTexture from './assets/textures/uranus.jpg'
 import neptuneTexture from './assets/textures/neptune.jpg'
+import {addFont} from './utils/loaders'
+import {fonts} from './utils/config'
+import edgeOfTheGalaxyFont from './assets/fonts/edge-of-galaxy-poster.otf'
+import jostRegularFont from './assets/fonts/jost-regular.ttf'
+import jostBoldFont from './assets/fonts/jost-bold.ttf'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -47,6 +52,10 @@ export class SolarSystem {
 
 		this.addCamera()
 		//this.addOrbit()
+		this.init()
+	}
+	private async init() {
+		await this.loadFonts()
 		this.addSun()
 		this.addPlanets()
 
@@ -65,10 +74,6 @@ export class SolarSystem {
 			canvas : canvas
 		})
 		this.renderer.setSize(window.innerWidth, window.innerHeight)
-	}
-
-	public getCamera() {
-		return this.camera
 	}
     
 	private addCamera() {
@@ -192,9 +197,15 @@ export class SolarSystem {
 			})
 		})
 	}
+
+	private async loadFonts() {
+		await addFont(fonts.titleFont, edgeOfTheGalaxyFont)
+		await addFont(fonts.descriptionFont, jostRegularFont)
+		await addFont(fonts.boldFont, jostBoldFont)
+	}
     
 	private render() {
-		const elapsedTime = this.clock.getElapsedTime()
+		const elapsedTime = 0 // this.clock.getElapsedTime()
 		this.renderer.render(this.scene, this.camera)
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
 		//this.controls.update()
