@@ -8,12 +8,13 @@ import {
 import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import earthTexture from '../assets/textures/earth.jpg'
+import moonTexture from '../assets/textures/moon.jpg'
 import {distanceToSunFactor} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Earth extends BasePlanet {
 
-
+	private moon!: Mesh<SphereGeometry, MeshStandardMaterial>
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.5
@@ -25,6 +26,7 @@ export class Earth extends BasePlanet {
 		this.addPosition()
 		this.addPanel()
 		this.addOrbit(scene)
+		this.addMoon()
 	}
 
 	async addMaterial() {
@@ -35,7 +37,7 @@ export class Earth extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new RingGeometry(this.distanceToSun * distanceToSunFactor - 0.05, this.distanceToSun * distanceToSunFactor  + 0.05, 60)
+		const geometry = new RingGeometry(this.distanceToSun * distanceToSunFactor - 0.05, this.distanceToSun * distanceToSunFactor  + 0.05, 500)
 		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 
@@ -43,6 +45,17 @@ export class Earth extends BasePlanet {
 		orbitGroup.add(orbit) // Add the orbit to the orbit group
 
 		scene.add(orbitGroup) // Add the orbit group to the parent group (assuming the parent group is used for the solar system scene)
+	}
+
+	addMoon() {
+		const geometry = new SphereGeometry(this.radius / 3.67, 20, 20)
+		const texture = new TextureLoader().load(moonTexture)
+		const material = new MeshStandardMaterial({ roughness: 1, map: texture })
+		const body = new Mesh(geometry, material)
+		body.position.set(0.8, 0.2, 0)
+		this.moon = body
+
+		this.add(body)
 	}
 
 	addPosition() {
@@ -53,6 +66,7 @@ export class Earth extends BasePlanet {
 
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 		const body = new Mesh(geometry, this.material)
+		this.planet = body
 		this.add(body)
 	}
 
@@ -80,6 +94,12 @@ export class Earth extends BasePlanet {
 			infos: earthInfos, distanceFromPlanet: 3,  sizes: {width: 3, height : 3, padding: 0.2}
 		})
 		this.add(this.panel)
+
+	}
+	animate(elapsedTime: number) {
+		super.animate(elapsedTime)
+		this.moon.position.applyAxisAngle(this.up, this.speed / 27 *0.2)
+
 
 	}
 }

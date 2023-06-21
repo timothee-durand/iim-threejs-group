@@ -30,7 +30,7 @@ export class Uranus extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new RingGeometry(this.distanceToSun* distanceToSunFactor  - 0.05, this.distanceToSun* distanceToSunFactor  + 0.05, 60)
+		const geometry = new RingGeometry(this.distanceToSun* distanceToSunFactor  - 0.05, this.distanceToSun* distanceToSunFactor  + 0.05, 500)
 		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -49,6 +49,7 @@ export class Uranus extends BasePlanet {
 	addBody() {
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 		const body = new Mesh(geometry, this.material)
+		this.planet = body
 		this.add(body)
 	}
 
