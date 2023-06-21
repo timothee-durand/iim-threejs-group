@@ -1,5 +1,7 @@
 # Solar system
 
+A school project in ThreeJs
+
 
 ## Run project
 ```
