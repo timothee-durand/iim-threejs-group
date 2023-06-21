@@ -30,6 +30,7 @@ import edgeOfTheGalaxyFont from './assets/fonts/edge-of-galaxy-poster.otf'
 import jostRegularFont from './assets/fonts/jost-regular.ttf'
 import jostBoldFont from './assets/fonts/jost-bold.ttf'
 import {gsap} from 'gsap'
+import {Stars} from './parts/Stars'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -60,6 +61,7 @@ export class SolarSystem {
 	private async init() {
 		await this.loadFonts()
 		this.addSun()
+		this.addStars()
 		this.addPlanets()
 
 		this.clock.start()
@@ -94,6 +96,11 @@ export class SolarSystem {
 	private addSun() {
 		const sun = new Sun()
 		this.scene.add(sun)
+	}
+
+	private addStars() {
+		const stars = new Stars()
+		this.scene.add(stars)
 	}
 
 	private addPlanets() {

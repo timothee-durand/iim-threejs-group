@@ -20,8 +20,8 @@ export class BasePlanet extends Group implements AnimatedElement, ClickableEleme
 
 
 	animate(elapsedTime: number) {
-		this.position.x = Math.sin(elapsedTime * this.speed) * this.distanceToSun * distanceToSunFactor
-		this.position.z = Math.cos(elapsedTime * this.speed)	* this.distanceToSun * distanceToSunFactor
+		this.position.x = Math.sin(elapsedTime * this.speed * 0.5) * this.distanceToSun * distanceToSunFactor
+		this.position.z = Math.cos(elapsedTime * this.speed * 0.5)	* this.distanceToSun * distanceToSunFactor
 	}
 
 	onClick() {

@@ -6,7 +6,7 @@ export const fonts = {
 	boldFont : 'jost-bold',
 }
 
-export const distanceToSunFactor = 5
+export const distanceToSunFactor = 6
 
 export  const cameraOffset = new Vector3(2, 1, 2)
 
