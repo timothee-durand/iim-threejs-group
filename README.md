@@ -2,7 +2,7 @@
 
 A school project in ThreeJs
 
-Preview : timothee-durand.github.io/iim-threejs-group/
+Preview : https://timothee-durand.github.io/iim-threejs-group/
 
 
 ## Run project
