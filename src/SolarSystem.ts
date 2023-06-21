@@ -83,8 +83,8 @@ export class SolarSystem {
 		camera.position.y = 0
 		this.camera = camera
 
-		this.buttonGroup.position.z = 30
-		this.buttonGroup.position.y = 3
+		this.buttonGroup.position.z = 125
+		this.buttonGroup.position.y = 9
 	}
 
 	private addSun() {

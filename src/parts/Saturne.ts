@@ -14,7 +14,7 @@ import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 
 export class Saturne extends BasePlanet {
-	private panel!: AnimatedPlanetPanel
+	public panel!: AnimatedPlanetPanel
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.5
@@ -32,7 +32,7 @@ export class Saturne extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new RingGeometry(this.distanceToSun - 0.05, this.distanceToSun + 0.05, 60)
+		const geometry = new RingGeometry(this.distanceToSun* distanceToSunFactor  - 0.05, this.distanceToSun* distanceToSunFactor  + 0.05, 60)
 		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2

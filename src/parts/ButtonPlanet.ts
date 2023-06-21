@@ -57,5 +57,6 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 	onClick(buttonGroup: Group) {
 		console.log(buttonGroup.position)
 		buttonGroup.position.set(this.planet.position.x + 1, this.planet.position.y, this.planet.position.z)
+		this.planet.panel.lauchAnimation()
 	}
 }

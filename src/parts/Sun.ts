@@ -13,7 +13,7 @@ export class Sun extends Group implements AnimatedElement, ClickableElement {
 	private material !: MeshStandardMaterial
 	private radius = 1
 	private isHovered = false
-	private panel!: AnimatedPlanetPanel
+	public panel!: AnimatedPlanetPanel
 	private planetGroup = new Group()
 
 	constructor() {
