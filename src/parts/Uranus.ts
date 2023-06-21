@@ -4,15 +4,19 @@ import {
 	Mesh, MeshBasicMaterial,
 	MeshStandardMaterial,
 	PointLight, RingGeometry, Scene,
-	SphereGeometry, TextureLoader, TorusGeometry
+	SphereGeometry, TextureLoader, TorusGeometry, Vector3
 } from 'three'
 import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import uranusTexture from '../assets/textures/uranus.jpg'
 import {distanceToSunFactor} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
+import {loadModel} from '../utils/loaders'
+import rocketModel from '../assets/models/rocket.glb'
 
 export class Uranus extends BasePlanet {
+	private rocket ?:Group
+	private rocketDistance = 0.5
 
 	constructor(scene: Scene) {
 		super()
@@ -25,6 +29,7 @@ export class Uranus extends BasePlanet {
 		this.addPosition()
 		this.addOrbit(scene)
 		this.addPanel()
+		this.addRocket()
 	}
 
 	addOrbit(scene: Scene) {
@@ -40,10 +45,21 @@ export class Uranus extends BasePlanet {
 	}
 	async addMaterial() {
 		const texture = new TextureLoader().load(uranusTexture)
-		this.material = new MeshStandardMaterial({ roughness: 1, map: texture })	}
+		this.material = new MeshStandardMaterial({ roughness: 1, map: texture})
+	}
 
 	addPosition() {
 		this.translateX(this.distanceToSun * distanceToSunFactor)
+	}
+
+	async addRocket() {
+		const gltf = await loadModel(rocketModel)
+		const rocket = gltf.scene
+		this.add(rocket)
+		const scale = 0.03
+		rocket.scale.set(scale, scale, scale)
+		rocket.position.set(0, this.radius + this.rocketDistance , 0)
+		this.rocket = rocket
 	}
 
 	addBody() {
@@ -77,6 +93,19 @@ export class Uranus extends BasePlanet {
 			infos: uranusInfos, distanceFromPlanet: 3,  sizes: {width:2.5, height : 3, padding: 0.2}
 		})
 		this.add(this.panel)
+	}
 
+	animate(elapsedTime: number) {
+		super.animate(elapsedTime)
+		if(this.rocket) {
+			const orbitRadius = this.radius + this.rocketDistance // Adjust the radius of the orbit
+			const angle = elapsedTime
+			const x = Math.cos(angle) * orbitRadius
+			const y = Math.sin(angle) * orbitRadius
+			this.rocket.position.x = x
+			this.rocket.position.y =y
+			const rotationAngle = Math.atan2(y, x)
+			this.rocket.rotation.z = rotationAngle
+		}
 	}
 }
