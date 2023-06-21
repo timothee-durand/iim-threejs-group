@@ -14,7 +14,6 @@ import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 
 export class Saturne extends BasePlanet {
-	public panel!: AnimatedPlanetPanel
 	private asteroidBelt!: Group
 	constructor(scene: Scene) {
 		super()

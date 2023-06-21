@@ -12,7 +12,7 @@ import {distanceToSunFactor} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Earth extends BasePlanet {
-	public panel!: AnimatedPlanetPanel
+
 
 	constructor(scene: Scene) {
 		super()

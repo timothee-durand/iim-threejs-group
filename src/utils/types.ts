@@ -13,7 +13,7 @@ export interface ClickableElement {
     onClick: (buttonGroup: Group) => void
 }
 
-export function isHoverableElement(element: any): element is ClickableElement {
+export function isClickable(element: any): element is ClickableElement {
 	return element.onClick !== undefined
 }
 

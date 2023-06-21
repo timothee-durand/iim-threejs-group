@@ -12,7 +12,7 @@ import neptuneTexture from '../assets/textures/neptune.jpg'
 import {distanceToSunFactor} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 export class Neptune extends BasePlanet  {
-	public panel!: AnimatedPlanetPanel
+
 	constructor(scene: Scene) {
 		super()
 		this.radius = 0.7
