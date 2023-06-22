@@ -1,4 +1,4 @@
-import {Group, Mesh, MeshPhongMaterial, SphereGeometry} from 'three'
+import { Group, Mesh, MeshPhongMaterial, PointLight, SphereGeometry } from 'three'
 import {random, randomInArray} from '../utils/random'
 
 
@@ -20,6 +20,7 @@ export class Stars extends Group {
 			const star = starMesh.clone()
 			star.material = randomInArray(materials)
 			star.position.set(random(-100, 100), random(-100, 100), random(-100, 100))
+
 			const scale = random(0.5, 1)
 			star.scale.set(scale, scale, scale)
 			this.add(star)

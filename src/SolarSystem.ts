@@ -80,7 +80,7 @@ export class SolarSystem {
 		this.initAnimatedChildren()
 		this.composer = new EffectComposer(this.renderer)
 		this.composer.addPass(new RenderPass(this.scene, this.camera))
-		this.bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 0.4, 0, 1.1)
+		this.bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 0.4, 0, 3)
 		this.composer.addPass(this.bloomPass)
 		this.render()
 		this.addListeners()
