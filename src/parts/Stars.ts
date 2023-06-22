@@ -18,9 +18,9 @@ export class Stars extends Group {
 	initStars() {
 		const starGeometry = new SphereGeometry(0.05, 10, 10)
 		const materials = [
-			new MeshPhongMaterial({color: 'white', emissive: 'white'}),
-			new MeshPhongMaterial({color: '#42a9ff', emissive: '#42a9ff'}),
-			new MeshPhongMaterial({color: '#ff4242', emissive: '#ff4242'}),
+			new MeshPhongMaterial({color: 'white', emissive: 'white', emissiveIntensity: 10}),
+			new MeshPhongMaterial({color: '#42a9ff', emissive: '#42a9ff', emissiveIntensity: 10}),
+			new MeshPhongMaterial({color: '#ff4242', emissive: '#ff4242', emissiveIntensity: 10}),
 		]
 		const starMesh = new Mesh(starGeometry, materials[0])
 		for (let i = 0; i < 10000; i++) {

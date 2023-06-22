@@ -31,6 +31,9 @@ import jostRegularFont from './assets/fonts/jost-regular.ttf'
 import jostBoldFont from './assets/fonts/jost-bold.ttf'
 import {gsap} from 'gsap'
 import {Stars} from './parts/Stars'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -46,8 +49,11 @@ export class SolarSystem {
 	private selectedButton: ButtonPlanet | null = null
 	private oldElapsedTime = 0
 	private returnButton!:HTMLButtonElement
+	private composer!: EffectComposer
+	private bloomPass!: any
 
 	constructor(canvas: HTMLCanvasElement) {
+
 
 		this.initRenderer(canvas)
 
@@ -69,6 +75,10 @@ export class SolarSystem {
 
 		this.addLight()
 		this.initAnimatedChildren()
+		this.composer = new EffectComposer(this.renderer)
+		this.composer.addPass(new RenderPass(this.scene, this.camera))
+		this.bloomPass = new UnrealBloomPass(new Vector2(window.innerWidth, window.innerHeight), 0.4, 0, 1.1)
+		this.composer.addPass(this.bloomPass)
 		this.render()
 		this.addListeners()
 	}
@@ -233,6 +243,7 @@ export class SolarSystem {
 	}
     
 	private render() {
+
 		if(this.isTransitionning && this.clock.running) {
 			this.clock.stop()
 			this.clock.elapsedTime = this.oldElapsedTime
@@ -242,9 +253,11 @@ export class SolarSystem {
 			this.clock.elapsedTime = this.oldElapsedTime
 		}
 		const elapsedTime = this.clock.getElapsedTime()
-		this.renderer.render(this.scene, this.camera)
+		this.composer.render()
+
 		this.animatedChildren.forEach(child => child.animate(elapsedTime))
 		this.stickToSelectedPlanet()
+
 		window.requestAnimationFrame(() => this.render())
 		this.oldElapsedTime = elapsedTime
 	}

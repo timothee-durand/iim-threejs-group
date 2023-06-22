@@ -1,7 +1,8 @@
 import {
+	Color,
 	CylinderGeometry,
 	Group,
-	Mesh,
+	Mesh, MeshBasicMaterial, MeshPhongMaterial,
 	MeshStandardMaterial,
 	PointLight,
 	SphereGeometry, TextureLoader
@@ -11,7 +12,7 @@ import sunTexture from '../assets/textures/sun.jpg'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Sun extends Group implements AnimatedElement, ClickableElement {
-	private material !: MeshStandardMaterial
+	private material !: MeshPhongMaterial
 	private radius = 5
 	private isHovered = false
 
@@ -27,12 +28,14 @@ export class Sun extends Group implements AnimatedElement, ClickableElement {
 
 	addMaterial() {
 		const sunMap = new TextureLoader().load(sunTexture)
-		this.material = new MeshStandardMaterial({  roughness:1, map : sunMap, emissive: '#e17500' })
+		this.material = new MeshPhongMaterial({  map : sunMap, emissive: '#e17500', emissiveIntensity: 20 })
 	}
 
 	addBody() {
 		const geometry = new SphereGeometry(this.radius, 20, 20)
 		const body = new Mesh(geometry, this.material)
+
+		console.log(body.material)
 		this.planetGroup.add(body)
 	}
 
