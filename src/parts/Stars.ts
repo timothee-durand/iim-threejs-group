@@ -1,13 +1,6 @@
 import {Group, Mesh, MeshPhongMaterial, SphereGeometry} from 'three'
+import {random, randomInArray} from '../utils/random'
 
-
-function random(min: number, max: number) {
-	return Math.random() * (max - min) + min
-}
-
-function randomInArray<T>(array:T[]) : T {
-	return array[Math.floor(Math.random() * array.length)]
-}
 
 export class Stars extends Group {
 	constructor() {

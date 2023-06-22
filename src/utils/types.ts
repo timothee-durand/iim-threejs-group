@@ -17,3 +17,11 @@ export function isClickable(element: any): element is ClickableElement {
 	return element.onClick !== undefined
 }
 
+export interface HoverableElement {
+    onMouseEnter: () => void
+    onMouseLeave: () => void
+}
+
+export function isHoverable(element: any): element is HoverableElement {
+	return element.onMouseEnter !== undefined && element.onMouseLeave !== undefined
+}

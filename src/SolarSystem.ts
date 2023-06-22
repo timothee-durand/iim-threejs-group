@@ -4,7 +4,7 @@ import {
 	Scene, Vector2,
 	WebGLRenderer
 } from 'three'
-import {AnimatedElement, isAnimatedElement, isClickable} from './utils/types'
+import {AnimatedElement, isAnimatedElement, isClickable, isHoverable} from './utils/types'
 import {Sun} from './parts/Sun'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import { Earth } from './parts/Earth'
@@ -31,6 +31,7 @@ import jostRegularFont from './assets/fonts/jost-regular.ttf'
 import jostBoldFont from './assets/fonts/jost-bold.ttf'
 import {gsap} from 'gsap'
 import {Stars} from './parts/Stars'
+import {hidePlayButton, showPlayButton} from './utils/html'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -46,6 +47,8 @@ export class SolarSystem {
 	private selectedButton: ButtonPlanet | null = null
 	private oldElapsedTime = 0
 	private returnButton!:HTMLButtonElement
+	private previousIntersectObject: Set<string> = new Set()
+	private isPaused = false
 
 	constructor(canvas: HTMLCanvasElement) {
 
@@ -159,10 +162,6 @@ export class SolarSystem {
 		this.scene.add(ambientLight)
 	}
 
-	private addOrbit() {
-		this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-	}
-
 	private initAnimatedChildren() {
 		this.scene.traverse((child) => {
 			if (isAnimatedElement(child)) {
@@ -171,7 +170,19 @@ export class SolarSystem {
 		})
 	}
 
+	private togglePlanetRotation() {
+		this.isPaused = !this.isPaused
+		if(this.isPaused) {
+			showPlayButton()
+		} else {
+			hidePlayButton()
+		}
+	}
+
 	private addListeners() {
+		const playButton = document.getElementById('pause')!
+		playButton.addEventListener('click', () => this.togglePlanetRotation())
+
 		window.addEventListener('resize', () => this.onResize())
 		window.addEventListener('mousemove', (event) => this.onMouseMove(event))
 
@@ -180,7 +191,7 @@ export class SolarSystem {
 			window.removeEventListener('mousemove', (event) => this.onMouseMove(event))
 		})
 
-		window.addEventListener('click', () => this.checkInteractions())
+		window.addEventListener('click', () => this.raycastOnClick())
 	}
 
 	private onResize() {
@@ -192,9 +203,19 @@ export class SolarSystem {
 	private onMouseMove(event: MouseEvent) {
 		this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1
 		this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+		if(!this.isTransitionning) {
+			this.raycastOnHover()
+			gsap.to(this.buttonGroup.rotation, {
+				x:  cameraRotation.x - this.mouse.y * 0.1,
+				y:  cameraRotation.y - this.mouse.x * 0.1,
+				duration: 2,
+				ease: 'power2.out'
+			})
+		}
 	}
 
-	private checkInteractions() {
+	private raycastOnClick() {
 		this.raycaster.setFromCamera(this.mouse, this.camera)
 		const intersectedObjects = this.raycaster.intersectObjects(this.scene.children, true)
 		intersectedObjects.forEach(intersectedObject => {
@@ -209,9 +230,36 @@ export class SolarSystem {
 						}
 						this.selectedButton = object
 					}
-					return
 				}
 			})
+		})
+	}
+
+	private raycastOnHover() {
+		this.raycaster.setFromCamera(this.mouse, this.camera)
+		const intersectedObjects = this.raycaster.intersectObjects(this.scene.children, true)
+		const hoverableIntersectedObjects: Set<string> = new Set()
+		intersectedObjects.forEach(intersectedObject => {
+			const object = intersectedObject.object
+			object.traverseAncestors((object) => {
+				//console.log(object)
+				if(isHoverable(object)) {
+					hoverableIntersectedObjects.add(object.uuid)
+					if(!this.previousIntersectObject.has(object.uuid)) {
+						object.onMouseEnter()
+					}
+					this.previousIntersectObject.add(object.uuid)
+				}
+			})
+		})
+		this.previousIntersectObject.forEach(uuid => {
+			if(!hoverableIntersectedObjects.has(uuid)) {
+				const object = this.scene.getObjectByProperty('uuid', uuid)
+				if(object && isHoverable(object)) {
+					object.onMouseLeave()
+					this.previousIntersectObject.delete(uuid)
+				}
+			}
 		})
 	}
 
@@ -233,11 +281,11 @@ export class SolarSystem {
 	}
     
 	private render() {
-		if(this.isTransitionning && this.clock.running) {
+		if((this.isTransitionning || this.isPaused) && this.clock.running) {
 			this.clock.stop()
 			this.clock.elapsedTime = this.oldElapsedTime
 		}
-		if(!this.isTransitionning && !this.clock.running) {
+		if(!this.isTransitionning && !this.isPaused && !this.clock.running) {
 			this.clock.start()
 			this.clock.elapsedTime = this.oldElapsedTime
 		}

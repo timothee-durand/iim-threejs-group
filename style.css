@@ -10,6 +10,10 @@ body {
     overflow: hidden;
 }
 
+body.hover {
+    cursor: pointer;
+}
+
 .return-button {
     position: absolute;
     top: 1rem;
@@ -28,4 +32,26 @@ body {
 .return-button.hide {
     opacity: 0;
     pointer-events: none;
+}
+
+#pause {
+    background-color: transparent;
+    border: none;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    cursor: pointer;
+    padding: 1rem;
+}
+
+.play-btn {
+    display: none;
+}
+
+#pause.pause .play-btn {
+    display: block;
+}
+
+#pause.pause .pause-btn {
+    display: none;
 }
