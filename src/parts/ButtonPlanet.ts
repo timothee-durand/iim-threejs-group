@@ -1,21 +1,24 @@
 import {
 	Group,
 	Mesh, MeshBasicMaterial,
-	SphereGeometry, TextureLoader, Vector3
+	SphereGeometry, TextureLoader
 } from 'three'
-import {AnimatedElement, ClickableElement} from '../utils/types'
+import {AnimatedElement, ClickableElement, HoverableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import {gsap} from 'gsap'
 import {cameraOffset} from '../utils/config'
+import {endHover, startHover} from '../utils/html'
+import {random} from '../utils/random'
 
 
-export class ButtonPlanet extends Group implements AnimatedElement, ClickableElement {
+export class ButtonPlanet extends Group implements AnimatedElement, ClickableElement, HoverableElement {
 
 	private readonly texture !: string
 	private readonly radius: number
 	private material!: MeshBasicMaterial
 	public planet: BasePlanet
 	private readonly rotationSpeed: number
+	private currentRotation = 0
 	public isTransitionning = false
 
 
@@ -27,6 +30,7 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 		this.addMaterial()
 		this.addBody()
 		this.rotationSpeed = Math.random() * 0.01
+		this.currentRotation = this.rotationSpeed
 	}
 
 	async addMaterial() {
@@ -42,7 +46,7 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 
 
 	animate() {
-		this.rotation.y += this.rotationSpeed
+		this.rotation.y += this.currentRotation
 	}
 
 	onClick(buttonGroup: Group) {
@@ -74,5 +78,27 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 
 	unselect() {
 		this.planet.panel.closePanel()
+	}
+
+	onMouseEnter(): void {
+		startHover()
+		this.currentRotation = this.rotationSpeed * random(20, 50)
+		this.animateScale(1.2)
+	}
+
+	onMouseLeave(): void {
+		endHover()
+		this.currentRotation = this.rotationSpeed
+		this.animateScale(1)
+	}
+
+	private animateScale(newScale: number) {
+		gsap.to(this.scale, {
+			x: newScale,
+			y: newScale,
+			z: newScale,
+			duration: 0.5,
+			ease: 'power2.out',
+		})
 	}
 }
