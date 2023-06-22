@@ -82,7 +82,7 @@ export class ButtonPlanet extends Group implements AnimatedElement, ClickableEle
 
 	onMouseEnter(): void {
 		startHover()
-		this.currentRotation = this.rotationSpeed * random(20, 50)
+		this.currentRotation = this.rotationSpeed * 10
 		this.animateScale(1.2)
 	}
 
