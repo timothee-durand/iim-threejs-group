@@ -9,7 +9,7 @@ import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import earthTexture from '../assets/textures/earth.jpg'
 import moonTexture from '../assets/textures/moon.jpg'
-import {distanceToSunFactor} from '../utils/config'
+import {distanceToSunFactor, orbitRadius} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 export class Earth extends BasePlanet {
@@ -37,7 +37,7 @@ export class Earth extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new RingGeometry(this.distanceToSun * distanceToSunFactor - 0.05, this.distanceToSun * distanceToSunFactor  + 0.05, 500)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, orbitRadius, 2, 100)
 		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 

@@ -9,7 +9,7 @@ import {
 import {AnimatedElement, ClickableElement} from '../utils/types'
 import { BasePlanet } from './BasePlanet'
 import saturnTexture from '../assets/textures/saturn.jpg'
-import {distanceToSunFactor} from '../utils/config'
+import {distanceToSunFactor, orbitRadius} from '../utils/config'
 import {AnimatedPlanetPanel} from './AnimatedPanel'
 
 
@@ -33,7 +33,7 @@ export class Saturne extends BasePlanet {
 	addOrbit(scene: Scene) {
 		const orbitGroup = new Group() // Create a new group for the orbit
 
-		const geometry = new RingGeometry(this.distanceToSun* distanceToSunFactor  - 0.05, this.distanceToSun* distanceToSunFactor  + 0.05, 500)
+		const geometry = new TorusGeometry(this.distanceToSun * distanceToSunFactor, orbitRadius, 2, 100)
 		const material = new MeshBasicMaterial({ color: '#FFF', side: 2 })
 		const orbit = new Mesh(geometry, material)
 		orbit.rotation.x = Math.PI / 2
@@ -79,16 +79,16 @@ export class Saturne extends BasePlanet {
 	generateAsteroidBelt() {
 		const numberOfAsteroids = 1000
 		const asteroidBelt = new Group()
-		const minDistanceFromPlanet = 5; // Distance minimale par rapport à la planète
-		const maxDistanceFromPlanet = 10; // Distance maximale par rapport à la planète
-		const maxDistanceXZ = 15;
+		const minDistanceFromPlanet = 5 // Distance minimale par rapport à la planète
+		const maxDistanceFromPlanet = 10 // Distance maximale par rapport à la planète
+		const maxDistanceXZ = 15
 		for (let i = 0; i < numberOfAsteroids; i++) {
 			const geometry = new DodecahedronGeometry(Math.random()*0.2, 0)
 			const material = new MeshStandardMaterial({ color: '#777777' })
 			const asteroid = new Mesh(geometry, material)
-			const distanceFromPlanet = Math.random() * (maxDistanceFromPlanet - minDistanceFromPlanet) + minDistanceFromPlanet;
-			const randomX = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ;
-			const randomZ = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ;
+			const distanceFromPlanet = Math.random() * (maxDistanceFromPlanet - minDistanceFromPlanet) + minDistanceFromPlanet
+			const randomX = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ
+			const randomZ = (Math.random() > 0.5 ? -1 : 1) * Math.random() * maxDistanceXZ
 
 			const asteroidX = randomX * distanceFromPlanet
 			const asteroidY = Math.random() / 10 - 0.05

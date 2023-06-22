@@ -96,7 +96,7 @@ export class SolarSystem {
 	}
     
 	private addCamera() {
-		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
+		const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 250)
 		this.buttonGroup.add(camera)
 		camera.position.z = 5
 		camera.position.y = 0
