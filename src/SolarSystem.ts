@@ -31,6 +31,7 @@ import jostRegularFont from './assets/fonts/jost-regular.ttf'
 import jostBoldFont from './assets/fonts/jost-bold.ttf'
 import {gsap} from 'gsap'
 import {Stars} from './parts/Stars'
+import {hidePlayButton, showPlayButton} from './utils/html'
 
 export class SolarSystem {
 	private static instance: SolarSystem | null= null
@@ -47,6 +48,7 @@ export class SolarSystem {
 	private oldElapsedTime = 0
 	private returnButton!:HTMLButtonElement
 	private previousIntersectObject: Set<string> = new Set()
+	private isPaused = false
 
 	constructor(canvas: HTMLCanvasElement) {
 
@@ -168,7 +170,19 @@ export class SolarSystem {
 		})
 	}
 
+	private togglePlanetRotation() {
+		this.isPaused = !this.isPaused
+		if(this.isPaused) {
+			showPlayButton()
+		} else {
+			hidePlayButton()
+		}
+	}
+
 	private addListeners() {
+		const playButton = document.getElementById('pause')!
+		playButton.addEventListener('click', () => this.togglePlanetRotation())
+
 		window.addEventListener('resize', () => this.onResize())
 		window.addEventListener('mousemove', (event) => this.onMouseMove(event))
 
@@ -177,7 +191,7 @@ export class SolarSystem {
 			window.removeEventListener('mousemove', (event) => this.onMouseMove(event))
 		})
 
-		window.addEventListener('click', () => this.checkInteractions())
+		window.addEventListener('click', () => this.raycastOnClick())
 	}
 
 	private onResize() {
@@ -267,11 +281,11 @@ export class SolarSystem {
 	}
     
 	private render() {
-		if(this.isTransitionning && this.clock.running) {
+		if((this.isTransitionning || this.isPaused) && this.clock.running) {
 			this.clock.stop()
 			this.clock.elapsedTime = this.oldElapsedTime
 		}
-		if(!this.isTransitionning && !this.clock.running) {
+		if(!this.isTransitionning && !this.isPaused && !this.clock.running) {
 			this.clock.start()
 			this.clock.elapsedTime = this.oldElapsedTime
 		}
