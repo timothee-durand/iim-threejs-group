@@ -1,5 +1,9 @@
 # Solar system
 
+A school project in ThreeJs
+
+Preview : https://timothee-durand.github.io/iim-threejs-group/
+
 
 ## Run project
 ```
